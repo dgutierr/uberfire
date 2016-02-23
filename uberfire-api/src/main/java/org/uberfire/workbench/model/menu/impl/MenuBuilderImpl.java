@@ -17,6 +17,7 @@
 package org.uberfire.workbench.model.menu.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +30,9 @@ import java.util.Stack;
 import org.uberfire.mvp.Command;
 import org.uberfire.mvp.PlaceRequest;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
+import org.uberfire.security.Resource;
+import org.uberfire.security.ResourceRef;
+import org.uberfire.workbench.model.ActivityType;
 import org.uberfire.workbench.model.menu.EnabledStateChangeListener;
 import org.uberfire.workbench.model.menu.MenuFactory;
 import org.uberfire.workbench.model.menu.MenuGroup;
@@ -75,7 +79,8 @@ public final class MenuBuilderImpl
         String contributionPoint = null;
         Command command = null;
         PlaceRequest placeRequest = null;
-        List<MenuItem> menuItems = new ArrayList<MenuItem>();
+        String identifier = null;
+        List menuItems = new ArrayList<MenuItem>();
         Stack<MenuFactory.CustomMenuBuilder> menuRawItems = new Stack<MenuFactory.CustomMenuBuilder>();
 
         @Override
@@ -100,6 +105,11 @@ public final class MenuBuilderImpl
 
                     @Override
                     public List<MenuItem> getItems() {
+                        return menuItems;
+                    }
+
+                    @Override
+                    public List<Resource> getDependencies() {
                         return menuItems;
                     }
 
@@ -141,6 +151,9 @@ public final class MenuBuilderImpl
 
                     @Override
                     public String getSignatureId() {
+                        if ( identifier != null ) {
+                            return identifier;
+                        }
                         if ( contributionPoint != null ) {
                             return getClass().getName() + "#" + contributionPoint + "#" + caption;
 
@@ -223,6 +236,9 @@ public final class MenuBuilderImpl
 
                     @Override
                     public String getSignatureId() {
+                        if ( identifier != null ) {
+                            return identifier;
+                        }
                         if ( contributionPoint != null ) {
                             return getClass().getName() + "#" + contributionPoint + "#" + caption;
 
@@ -256,10 +272,16 @@ public final class MenuBuilderImpl
 
                     private final List<EnabledStateChangeListener> enabledStateChangeListeners = new ArrayList<EnabledStateChangeListener>();
                     private boolean isEnabled = true;
+                    private List<Resource> dependencies = Arrays.asList(new ResourceRef(placeRequest.getIdentifier(), ActivityType.PERSPECTIVE, null));
 
                     @Override
                     public PlaceRequest getPlaceRequest() {
                         return placeRequest;
+                    }
+
+                    @Override
+                    public List<Resource> getDependencies() {
+                        return dependencies;
                     }
 
                     @Override
@@ -300,6 +322,9 @@ public final class MenuBuilderImpl
 
                     @Override
                     public String getSignatureId() {
+                        if ( identifier != null ) {
+                            return identifier;
+                        }
                         if ( contributionPoint != null ) {
                             return getClass().getName() + "#" + contributionPoint + "#" + caption;
 
@@ -372,6 +397,9 @@ public final class MenuBuilderImpl
 
                 @Override
                 public String getSignatureId() {
+                    if ( identifier != null ) {
+                        return identifier;
+                    }
                     if ( contributionPoint != null ) {
                         return getClass().getName() + "#" + contributionPoint + "#" + caption;
 
@@ -559,6 +587,13 @@ public final class MenuBuilderImpl
     }
 
     @Override
+    public MenuBuilderImpl identifier(final String id) {
+        ( (CurrentContext) context.peek() ).identifier = checkNotEmpty( "identifier", id);
+
+        return this;
+    }
+
+    @Override
     public MenuBuilderImpl endMenus() {
         return this;
     }
@@ -612,7 +647,6 @@ public final class MenuBuilderImpl
                 }};
             }
 
-            @Override
             public int getOrder() {
                 return order;
             }
