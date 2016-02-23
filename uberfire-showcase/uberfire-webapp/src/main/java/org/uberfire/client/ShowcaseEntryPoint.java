@@ -55,13 +55,10 @@ import org.uberfire.client.views.pfly.menu.UserMenu;
 import org.uberfire.client.workbench.events.ApplicationReadyEvent;
 import org.uberfire.client.workbench.widgets.menu.UtilityMenuBar;
 import org.uberfire.client.workbench.widgets.menu.WorkbenchMenuBar;
-import org.uberfire.mvp.Command;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
 import org.uberfire.workbench.model.menu.MenuFactory;
 import org.uberfire.workbench.model.menu.MenuItem;
 import org.uberfire.workbench.model.menu.Menus;
-
-import static org.uberfire.workbench.model.menu.MenuFactory.*;
 
 import com.google.common.collect.Sets;
 import com.google.gwt.animation.client.Animation;
@@ -142,22 +139,15 @@ public class ShowcaseEntryPoint {
         menubar.addMenus( menus );
 
         userMenu.addMenus(
-                newTopLevelMenu( "Logout" ).respondsWith( new Command() {
-                    @Override
-                    public void execute() {
-                        authService.call().logout();
-                    }
+                newTopLevelMenu( "Logout" ).respondsWith( () -> {
+                    authService.call().logout();
                 } ).endMenu()
-                        .newTopLevelMenu( "My roles" ).respondsWith(
-                        new Command() {
-                            @Override
-                            public void execute() {
-                                final Set<Role> roles = user.getRoles();
-                                if ( roles == null || roles.isEmpty() ) {
-                                    Window.alert( "You have no roles assigned" );
-                                } else {
-                                    Window.alert( "Currently logged in using roles: " + roles );
-                                }
+                        .newTopLevelMenu( "My roles" ).respondsWith(() -> {
+                            final Set<Role> roles = user.getRoles();
+                            if ( roles == null || roles.isEmpty() ) {
+                                Window.alert( "You have no roles assigned" );
+                            } else {
+                                Window.alert( "Currently logged in using roles: " + roles );
                             }
                         } )
                         .endMenu()
@@ -168,11 +158,9 @@ public class ShowcaseEntryPoint {
         utilityMenu.addMenus(
                 newTopLevelCustomMenu( userMenu ).endMenu()
                         .newTopLevelMenu( "Status" )
-                        .respondsWith( new Command() {
-                            @Override
-                            public void execute() {
-                                Window.alert( "Hello from status!" );
-                            }
+                        .idenfifier( "usermenu.status" )
+                        .respondsWith( () -> {
+                            Window.alert( "Hello from status!" );
                         } )
                 .endMenu()
                 .newTopLevelCustomMenu( manager.lookupBean( CustomSplashHelp.class ).getInstance() )
@@ -202,11 +190,9 @@ public class ShowcaseEntryPoint {
         final PlaceManager placeManager = IOC.getBeanManager().lookupBean( PlaceManager.class ).getInstance();
         for ( final String name : names ) {
             final MenuItem item = MenuFactory.newSimpleItem( name )
-                    .respondsWith( new Command() {
-                        @Override
-                        public void execute() {
-                            placeManager.goTo( new DefaultPlaceRequest( name ) );
-                        }
+                    .idenfifier( "screen.view." + name )
+                    .respondsWith( () -> {
+                        placeManager.goTo( new DefaultPlaceRequest( name ) );
                     } ).endMenu().build().getItems().get( 0 );
             screens.add( item );
         }
