@@ -22,10 +22,8 @@ import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.ioc.client.api.AfterInitialization;
 import org.jboss.errai.ioc.client.api.EntryPoint;
 import org.uberfire.backend.authz.AuthorizationService;
-import org.uberfire.security.authz.AccessController;
 import org.uberfire.security.authz.AuthorizationPolicy;
 import org.uberfire.security.authz.PermissionManager;
-import org.uberfire.security.impl.authz.RuntimeAuthorizationManager;
 
 @EntryPoint
 public class SecurityEntryPoint {
@@ -36,18 +34,11 @@ public class SecurityEntryPoint {
     @Inject
     private PermissionManager permissionManager;
 
-    @Inject
-    private AccessController accessController;
-
-    @Inject
-    private RuntimeAuthorizationManager authorizationManager;
-
     @AfterInitialization
     public void init() {
         authorizationService.call(
                 (AuthorizationPolicy p) -> {
                     permissionManager.setAuthorizationPolicy(p);
-                    authorizationManager.setAccessController(accessController);
                 }
         ).loadPolicy();
     }

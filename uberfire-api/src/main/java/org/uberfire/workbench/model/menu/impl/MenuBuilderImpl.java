@@ -74,7 +74,6 @@ public final class MenuBuilderImpl
         int order = 0;
         MenuType menuType = MenuType.REGULAR;
         String caption = null;
-        Set<String> roles = new HashSet<String>();
         MenuPosition position = MenuPosition.LEFT;
         String contributionPoint = null;
         Command command = null;
@@ -150,28 +149,6 @@ public final class MenuBuilderImpl
                     }
 
                     @Override
-                    public String getSignatureId() {
-                        if ( identifier != null ) {
-                            return identifier;
-                        }
-                        if ( contributionPoint != null ) {
-                            return getClass().getName() + "#" + contributionPoint + "#" + caption;
-
-                        }
-                        return getClass().getName() + "#" + caption;
-                    }
-
-                    @Override
-                    public Collection<String> getRoles() {
-                        return roles;
-                    }
-
-                    @Override
-                    public Collection<String> getTraits() {
-                        return emptyList();
-                    }
-
-                    @Override
                     public void accept( MenuVisitor visitor ) {
                         if ( visitor.visitEnter( this ) ) {
                             for ( MenuItem child : getItems() ) {
@@ -192,6 +169,11 @@ public final class MenuBuilderImpl
 
                     private final List<EnabledStateChangeListener> enabledStateChangeListeners = new ArrayList<EnabledStateChangeListener>();
                     private boolean isEnabled = true;
+
+                    @Override
+                    public String getIdentifier() {
+                        return identifier;
+                    }
 
                     @Override
                     public Command getCommand() {
@@ -235,28 +217,6 @@ public final class MenuBuilderImpl
                     }
 
                     @Override
-                    public String getSignatureId() {
-                        if ( identifier != null ) {
-                            return identifier;
-                        }
-                        if ( contributionPoint != null ) {
-                            return getClass().getName() + "#" + contributionPoint + "#" + caption;
-
-                        }
-                        return getClass().getName() + "#" + caption;
-                    }
-
-                    @Override
-                    public Collection<String> getRoles() {
-                        return roles;
-                    }
-
-                    @Override
-                    public Collection<String> getTraits() {
-                        return emptyList();
-                    }
-
-                    @Override
                     public void accept( MenuVisitor visitor ) {
                         visitor.visit( this );
                     }
@@ -277,6 +237,11 @@ public final class MenuBuilderImpl
                     @Override
                     public PlaceRequest getPlaceRequest() {
                         return placeRequest;
+                    }
+
+                    @Override
+                    public String getIdentifier() {
+                        return identifier;
                     }
 
                     @Override
@@ -321,28 +286,6 @@ public final class MenuBuilderImpl
                     }
 
                     @Override
-                    public String getSignatureId() {
-                        if ( identifier != null ) {
-                            return identifier;
-                        }
-                        if ( contributionPoint != null ) {
-                            return getClass().getName() + "#" + contributionPoint + "#" + caption;
-
-                        }
-                        return getClass().getName() + "#" + caption;
-                    }
-
-                    @Override
-                    public Collection<String> getRoles() {
-                        return roles;
-                    }
-
-                    @Override
-                    public Collection<String> getTraits() {
-                        return emptyList();
-                    }
-
-                    @Override
                     public void accept( MenuVisitor visitor ) {
                         visitor.visit( this );
                     }
@@ -358,6 +301,11 @@ public final class MenuBuilderImpl
 
                 private final List<EnabledStateChangeListener> enabledStateChangeListeners = new ArrayList<EnabledStateChangeListener>();
                 private boolean isEnabled = true;
+
+                @Override
+                public String getIdentifier() {
+                    return identifier;
+                }
 
                 @Override
                 public String getContributionPoint() {
@@ -393,28 +341,6 @@ public final class MenuBuilderImpl
                 @Override
                 public void addEnabledStateChangeListener( final EnabledStateChangeListener listener ) {
                     enabledStateChangeListeners.add( listener );
-                }
-
-                @Override
-                public String getSignatureId() {
-                    if ( identifier != null ) {
-                        return identifier;
-                    }
-                    if ( contributionPoint != null ) {
-                        return getClass().getName() + "#" + contributionPoint + "#" + caption;
-
-                    }
-                    return getClass().getName() + "#" + caption;
-                }
-
-                @Override
-                public Collection<String> getRoles() {
-                    return roles;
-                }
-
-                @Override
-                public Collection<String> getTraits() {
-                    return emptyList();
                 }
 
                 @Override
@@ -543,32 +469,6 @@ public final class MenuBuilderImpl
     @Override
     public MenuBuilderImpl place( final PlaceRequest place ) {
         ( (CurrentContext) context.peek() ).placeRequest = checkNotNull( "place", place );
-        return this;
-    }
-
-    @Override
-    public MenuBuilderImpl withRole( final String role ) {
-        ( (CurrentContext) context.peek() ).roles.add( role );
-
-        return this;
-    }
-
-    @Override
-    public MenuBuilderImpl withRoles( Collection roles ) {
-        for ( Iterator it = roles.iterator(); it.hasNext(); ) {
-            String role = (String) it.next();
-            ( (CurrentContext) context.peek() ).roles.add( role );
-        }
-
-        return this;
-    }
-
-    @Override
-    public MenuBuilderImpl withRoles( final String... roles ) {
-        for ( final String role : checkNotEmpty( "roles", roles ) ) {
-            ( (CurrentContext) context.peek() ).roles.add( role );
-        }
-
         return this;
     }
 

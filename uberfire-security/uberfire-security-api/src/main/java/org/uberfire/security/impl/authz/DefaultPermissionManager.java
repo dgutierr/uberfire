@@ -15,12 +15,12 @@
  */
 package org.uberfire.security.impl.authz;
 
-import java.util.HashMap;
-import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.jboss.errai.security.shared.api.identity.User;
+import org.uberfire.security.Resource;
+import org.uberfire.security.ResourceAction;
 import org.uberfire.security.authz.AuthorizationPolicy;
 import org.uberfire.security.authz.AuthorizationResult;
 import org.uberfire.security.authz.Permission;
@@ -36,7 +36,7 @@ public class DefaultPermissionManager implements PermissionManager {
 
     private PermissionTypeRegistry permissionTypeRegistry;
     private AuthorizationPolicy authorizationPolicy;
-    private Map<Permission,AuthorizationResult> resultCache = new HashMap<>();
+    private DefaultAuthzResultCache cache;
 
     public DefaultPermissionManager() {
     }
@@ -44,6 +44,12 @@ public class DefaultPermissionManager implements PermissionManager {
     @Inject
     public DefaultPermissionManager(PermissionTypeRegistry permissionTypeRegistry) {
         this.permissionTypeRegistry = permissionTypeRegistry;
+        this.cache = new DefaultAuthzResultCache();
+    }
+
+    public DefaultPermissionManager(PermissionTypeRegistry permissionTypeRegistry, DefaultAuthzResultCache cache) {
+        this.permissionTypeRegistry = permissionTypeRegistry;
+        this.cache = cache;
     }
 
     public AuthorizationPolicy getAuthorizationPolicy() {
@@ -52,7 +58,7 @@ public class DefaultPermissionManager implements PermissionManager {
 
     public void setAuthorizationPolicy(AuthorizationPolicy authorizationPolicy) {
         this.authorizationPolicy = authorizationPolicy;
-        this.resultCache.clear();
+        this.cache.clear();
     }
 
     @Override
@@ -67,36 +73,50 @@ public class DefaultPermissionManager implements PermissionManager {
     }
 
     @Override
+    public Permission createPermission(Resource resource, ResourceAction action, boolean granted) {
+
+        // Does the resource have a type?
+
+        // YES => check the resource action f.i: "project.view.myprojectid"
+        if (resource.getType() != null) {
+            PermissionType permissionType = permissionTypeRegistry.resolve(resource.getType().getName());
+            return permissionType.createPermission(resource, action, granted);
+        }
+        // NO => just check the resource identifier
+        return createPermission(resource.getIdentifier(), granted);
+    }
+
+    @Override
     public AuthorizationResult checkPermission(Permission permission, User user) {
 
         if (authorizationPolicy == null || permission == null) {
             return ACCESS_ABSTAIN;
         }
-        AuthorizationResult cachedResult = resultCache.get(permission);
-        if (cachedResult != null) {
-            return cachedResult;
+        AuthorizationResult result = cache.get(user, permission);
+        if (result == null) {
+            PermissionCollection userPermissions = authorizationPolicy.getPermissions(user);
+            result = checkPermission(permission, userPermissions);
+            cache.put(user, permission, result);
         }
-        PermissionCollection userPermissions = authorizationPolicy.getPermissions(user);
-        if (userPermissions == null) {
-            return cacheResult(permission, ACCESS_ABSTAIN);
+        return result;
+    }
+
+    protected AuthorizationResult checkPermission(Permission permission, PermissionCollection collection) {
+        if (collection == null) {
+            return ACCESS_ABSTAIN;
         }
-        Permission existing = userPermissions.get(permission.getName());
+        Permission existing = collection.get(permission.getName());
         if (existing != null) {
-            return cacheResult(permission, existing.getResult().equals(permission.getResult()) ? ACCESS_GRANTED : ACCESS_DENIED);
+            return existing.getResult().equals(permission.getResult()) ? ACCESS_GRANTED : ACCESS_DENIED;
         }
-        if (userPermissions.implies(permission)) {
-            return cacheResult(permission, ACCESS_GRANTED);
+        if (collection.implies(permission)) {
+            return ACCESS_GRANTED;
         }
         Permission inverted = permission.clone();
         inverted.setResult(inverted.getResult().invert());
-        if (userPermissions.implies(inverted)) {
-            return cacheResult(permission, ACCESS_DENIED);
+        if (collection.implies(inverted)) {
+            return ACCESS_DENIED;
         }
-        return cacheResult(permission, ACCESS_ABSTAIN);
-    }
-
-    protected AuthorizationResult cacheResult(Permission p, AuthorizationResult result) {
-        resultCache.put(p, result);
-        return result;
+        return ACCESS_ABSTAIN;
     }
 }

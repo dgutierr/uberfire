@@ -28,9 +28,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.uberfire.mvp.Command;
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceRef;
-import org.uberfire.security.authz.AuthorizationResult;
 import org.uberfire.security.authz.Permission;
 import org.uberfire.security.authz.PermissionManager;
 import org.uberfire.security.authz.PermissionType;
@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AccessControllerTest {
+public class AuthorizationManagerTest {
 
     @Mock
     Resource perspective1;
@@ -63,10 +63,16 @@ public class AccessControllerTest {
     Resource menuPerspective1;
 
     @Mock
+    Command onGranted;
+
+    @Mock
+    Command onDenied;
+
+    @Mock
     Resource menuPerspective2;
 
     User user;
-    DefaultAccessController accessController;
+    DefaultAuthorizationManager authorizationManager;
     PermissionManager permissionManager;
     PermissionTypeRegistry permissionTypeRegistry;
 
@@ -82,7 +88,7 @@ public class AccessControllerTest {
     public void setUp() {
         user = createUserMock("admin");
 
-        when(perspectiveType.toString()).thenReturn("perspective");
+        when(perspectiveType.getName()).thenReturn("perspective");
 
         when(resource1.getDependencies()).thenReturn(null);
         when(resource2.getDependencies()).thenReturn(null);
@@ -99,7 +105,7 @@ public class AccessControllerTest {
 
         permissionTypeRegistry = new DefaultPermissionTypeRegistry();
         permissionManager = spy(new DefaultPermissionManager(permissionTypeRegistry));
-        accessController = new DefaultAccessController(permissionManager);
+        authorizationManager = new DefaultAuthorizationManager(permissionManager);
 
         permissionManager.setAuthorizationPolicy(
                 permissionManager.newAuthorizationPolicy()
@@ -119,82 +125,137 @@ public class AccessControllerTest {
     }
 
     @Test
-    public void unknownResourceTest() {
-        AuthorizationResult result = accessController.checkAccess(resource1, user);
-        assertEquals(result, AuthorizationResult.ACCESS_ABSTAIN);
+    public void testUnknownResource() {
+        boolean result = authorizationManager.authorize(resource1, user);
+        assertEquals(result, true);
     }
 
     @Test
     public void testNonManagedResource() {
-        AuthorizationResult result = accessController.checkAccess(resource2, user);
-        assertEquals(result, AuthorizationResult.ACCESS_ABSTAIN);
+        boolean result = authorizationManager.authorize(resource2, user);
+        assertEquals(result, true);
         verify(permissionManager, never()).checkPermission(any(Permission.class), any(User.class));
     }
 
     @Test
     public void testCustomResourceAccess() {
         when(resource2.getIdentifier()).thenReturn("custom.resource2");
-        AuthorizationResult result = accessController.checkAccess(resource2, user);
-        assertEquals(result, AuthorizationResult.ACCESS_GRANTED);
+        boolean result = authorizationManager.authorize(resource2, user);
+        assertEquals(result, true);
         verify(permissionManager).checkPermission(any(Permission.class), any(User.class));
     }
 
     @Test
     public void testPerspectiveAccessGranted() {
-        AuthorizationResult result = accessController.checkAccess(perspective1, user);
-        assertEquals(result, AuthorizationResult.ACCESS_GRANTED);
+        boolean result = authorizationManager.authorize(perspective1, user);
+        assertEquals(result, true);
         verify(permissionManager).checkPermission(any(Permission.class), any(User.class));
     }
 
     @Test
     public void testPerspectiveAccessDenied() {
-        AuthorizationResult result = accessController.checkAccess(perspective2, user);
-        assertEquals(result, AuthorizationResult.ACCESS_DENIED);
+        boolean result = authorizationManager.authorize(perspective2, user);
+        assertEquals(result, false);
         verify(permissionManager).checkPermission(any(Permission.class), any(User.class));
     }
 
     @Test
     public void testMenuItemGranted() {
-        AuthorizationResult result = accessController.checkAccess(menuPerspective1, user);
-        assertEquals(result, AuthorizationResult.ACCESS_GRANTED);
+        boolean result = authorizationManager.authorize(menuPerspective1, user);
+        assertEquals(result, true);
         verify(permissionManager).checkPermission(any(Permission.class), any(User.class));
     }
 
     @Test
     public void testMenuItemDenied() {
-        AuthorizationResult result = accessController.checkAccess(menuPerspective2, user);
-        assertEquals(result, AuthorizationResult.ACCESS_DENIED);
+        boolean result = authorizationManager.authorize(menuPerspective2, user);
+        assertEquals(result, false);
     }
 
     @Test
     public void testMenuItemAbstain() {
         permissionManager.setAuthorizationPolicy(null);
-        AuthorizationResult result = accessController.checkAccess(menuPerspective1, user);
-        assertEquals(result, AuthorizationResult.ACCESS_ABSTAIN);
+        boolean result = authorizationManager.authorize(menuPerspective1, user);
+        assertEquals(result, true);
     }
 
     @Test
     public void testMenuGroupGranted() {
         Resource resource = new ResourceRef(null, null, Arrays.asList(menuPerspective1, menuPerspective2));
-        AuthorizationResult result = accessController.checkAccess(resource, user);
-        assertEquals(result, AuthorizationResult.ACCESS_GRANTED);
+        boolean result = authorizationManager.authorize(resource, user);
+        assertEquals(result, true);
 
         resource = new ResourceRef(null, null, Arrays.asList(menuPerspective1));
-        result = accessController.checkAccess(resource, user);
-        assertEquals(result, AuthorizationResult.ACCESS_GRANTED);
+        result = authorizationManager.authorize(resource, user);
+        assertEquals(result, true);
     }
 
     @Test
     public void testMenuGroupDenied() {
         Resource resource = new ResourceRef(null, null, Arrays.asList(menuPerspective2));
-        AuthorizationResult result = accessController.checkAccess(resource, user);
-        assertEquals(result, AuthorizationResult.ACCESS_DENIED);
+        boolean result = authorizationManager.authorize(resource, user);
+        assertEquals(result, false);
     }
 
     @Test
     public void testEmptyMenuDenied() {
         Resource resource = new ResourceRef(null, null, Arrays.asList());
-        AuthorizationResult result = accessController.checkAccess(resource, user);
-        assertEquals(result, AuthorizationResult.ACCESS_DENIED);
+        boolean result = authorizationManager.authorize(resource, user);
+        assertEquals(result, false);
+    }
+
+    @Test
+    public void testPermissionGranted() {
+        boolean result = authorizationManager.authorize("perspective.view.p1", user);
+        assertEquals(result, true);
+    }
+
+    @Test
+    public void testPermissionDenied() {
+        boolean result = authorizationManager.authorize("perspective.view.p2", user);
+        assertEquals(result, false);
+    }
+
+    @Test
+    public void testGrantCommandInvoked() throws Exception {
+        authorizationManager.check(perspective1, user).granted(onGranted);
+        verify(onGranted).execute();
+
+        reset(onGranted);
+        authorizationManager.check(perspective1, user).granted(onGranted).denied(onDenied);
+        verify(onGranted).execute();
+        verify(onDenied, never()).execute();
+    }
+
+    @Test
+    public void testGrantCommandNotInvoked() throws Exception {
+        authorizationManager.check(perspective2, user).granted(onGranted);
+        verify(onGranted, never()).execute();
+    }
+
+    @Test
+    public void testDenyCommandInvoked() throws Exception {
+        authorizationManager.check(perspective2, user).denied(onDenied);
+        verify(onDenied).execute();
+
+        reset(onDenied);
+        authorizationManager.check(perspective2, user).granted(onGranted).denied(onDenied);
+        verify(onGranted, never()).execute();
+        verify(onDenied).execute();
+    }
+
+    @Test
+    public void testDenyCommandNotInvoked() throws Exception {
+        authorizationManager.check(perspective1, user).denied(onDenied);
+        verify(onDenied, never()).execute();
+    }
+
+    @Test
+    public void testPermissionCheck() throws Exception {
+        authorizationManager.check("perspective.view.p1", user)
+                .granted(onGranted)
+                .denied(onDenied);
+        verify(onGranted).execute();
+        verify(onDenied, never()).execute();
     }
 }

@@ -71,7 +71,6 @@ public final class MenuFactory {
 
     public interface MenuBuilder<T>
             extends SimpleMenuBuilder<MenuBuilder<T>>,
-                    SecurityInfos<MenuBuilder<T>>,
                     CommandMenu<MenuBuilder<T>>,
                     PerspectiveMenu<MenuBuilder<T>>,
                     OrderedMenu<MenuBuilder<T>> {
@@ -88,8 +87,7 @@ public final class MenuFactory {
     }
 
     public interface SubMenuBuilder<T>
-            extends SimpleMenuBuilder<MenuBuilder<T>>,
-                    SecurityInfos<MenuBuilder<T>> {
+            extends SimpleMenuBuilder<MenuBuilder<T>> {
 
         SubMenusBuilder<SubMenuBuilder<T>> submenu( final String caption );
 
@@ -120,15 +118,6 @@ public final class MenuFactory {
     public interface TerminalCustomMenu<T> {
 
         T endMenu();
-    }
-
-    public interface SecurityInfos<T> {
-
-        T withRole( final String role );
-
-        T withRoles( final String... roles );
-
-        T withRoles( final Collection<String> roles );
     }
 
     public interface CustomMenuBuilder {

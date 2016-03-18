@@ -29,7 +29,7 @@ import org.uberfire.security.authz.PermissionType;
 import org.uberfire.security.authz.PermissionTypeRegistry;
 
 /**
- * Fluent API for creating AuthorizatoinPolicy instances. Example:
+ * Fluent API for the creation of AuthorizationPolicy instances. Example:
  *
  * <pre>
  * AuthorizationPolicy policy = permissionManager.newAuthorizationPolicy()

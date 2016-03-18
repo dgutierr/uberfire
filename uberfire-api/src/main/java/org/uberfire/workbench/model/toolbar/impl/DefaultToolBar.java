@@ -58,20 +58,4 @@ public class DefaultToolBar
     public List<ToolBarItem> getItems() {
         return this.items;
     }
-
-    @Override
-    public String getSignatureId() {
-        return DefaultToolBar.class.getName();
-    }
-
-    @Override
-    public Collection<String> getRoles() {
-        return null;
-    }
-
-    @Override
-    public Collection<String> getTraits() {
-        return null;
-    }
-
 }

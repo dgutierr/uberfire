@@ -26,6 +26,8 @@ import org.uberfire.client.screen.JSNativeScreen;
 import org.uberfire.client.workbench.widgets.splash.SplashView;
 import org.uberfire.mvp.ParameterizedCommand;
 import org.uberfire.mvp.PlaceRequest;
+import org.uberfire.security.ResourceType;
+import org.uberfire.workbench.model.ActivityType;
 import org.uberfire.workbench.model.SplashScreenFilter;
 
 import javax.enterprise.inject.Alternative;
@@ -80,6 +82,11 @@ public class JSSplashScreenActivity implements SplashScreenActivity {
     @Override
     public String getIdentifier() {
         return nativeSplashScreen.getId();
+    }
+
+    @Override
+    public ResourceType getType() {
+        return ActivityType.SPLASH;
     }
 
     public void init() {
@@ -178,20 +185,5 @@ public class JSSplashScreenActivity implements SplashScreenActivity {
             splashFilter.setDisplayNextTime( showAgain );
             nativeSplashScreen.getWbServices().save( splashFilter );
         }
-    }
-
-    @Override
-    public String getSignatureId() {
-        return nativeSplashScreen.getId();
-    }
-
-    @Override
-    public Collection<String> getRoles() {
-        return nativeSplashScreen.getRoles();
-    }
-
-    @Override
-    public Collection<String> getTraits() {
-        return nativeSplashScreen.getTraits();
     }
 }

@@ -15,6 +15,9 @@
  */
 package org.uberfire.security.impl.authz;
 
+import org.uberfire.security.Resource;
+import org.uberfire.security.ResourceAction;
+import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.Permission;
 import org.uberfire.security.authz.PermissionType;
 
@@ -42,5 +45,29 @@ public class DotNamedPermissionType implements PermissionType {
             throw new IllegalArgumentException("The permission is not supported: " + name);
         }
         return new DotNamedPermission(name, granted);
+    }
+
+    @Override
+    public Permission createPermission(Resource resource, ResourceAction action, boolean granted) {
+        ResourceAction _action = action != null ? action : ResourceAction.VIEW;
+        String name = buildPermissionName(resource.getType(),
+                _action.getName().toLowerCase(),
+                resource.getIdentifier());
+
+        return createPermission(name, granted);
+    }
+
+    protected String buildPermissionName(ResourceType type, String action, String resourceId) {
+        String name = "";
+        if (type != null) {
+            name += type.getName();
+        }
+        if (action != null && action.trim().length() > 0) {
+            name += (name.length() > 0 ? "." : "") + action;
+        }
+        if (resourceId != null && resourceId.trim().length() > 0) {
+            name += (name.length() > 0 ? "." : "") + resourceId;
+        }
+        return name;
     }
 }

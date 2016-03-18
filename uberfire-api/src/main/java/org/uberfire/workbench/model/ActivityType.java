@@ -17,6 +17,11 @@ package org.uberfire.workbench.model;
 
 import org.uberfire.security.ResourceType;
 
+/**
+ * An extension of the {@link ResourceType} interface holding an enumeration with the
+ * different activity types subject to authorization management control.
+ *
+ */
 public enum ActivityType implements ResourceType {
 
     PERSPECTIVE,
@@ -24,4 +29,9 @@ public enum ActivityType implements ResourceType {
     EDITOR,
     POPUP,
     SPLASH;
+
+    @Override
+    public String getName() {
+        return this.toString().toLowerCase();
+    }
 }
