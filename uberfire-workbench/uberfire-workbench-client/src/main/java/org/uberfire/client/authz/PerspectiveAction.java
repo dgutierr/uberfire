@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package org.uberfire.security;
+package org.uberfire.client.authz;
 
-public interface ResourceManager {
+/**
+ * Perspective related actions
+ */
+public interface PerspectiveAction extends ActivityAction {
 
-    boolean supports(final Resource resource);
-
-    boolean requiresAuthentication(final Resource resource);
-
+    PerspectiveAction EDIT = () -> "edit";
+    PerspectiveAction DELETE = () -> "delete";
 }

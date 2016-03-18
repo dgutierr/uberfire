@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package org.uberfire.shared.security;
+package org.uberfire.client.authz;
 
-import org.jboss.errai.security.shared.api.Role;
+import org.uberfire.security.ResourceAction;
 
-public enum AppRoles implements Role {
-    ADMIN, SUDO, MANAGER, DIRECTOR;
+/**
+ * Base class for actions involving any workbench activity
+ */
+public interface ActivityAction extends ResourceAction {
 
-    @Override
-    public String getName() {
-        return toString();
-    }
 }

@@ -1,0 +1,122 @@
+/*
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.uberfire.security.authz;
+
+import org.jboss.errai.security.shared.api.identity.User;
+import org.uberfire.security.Resource;
+import org.uberfire.security.ResourceAction;
+
+/**
+ * Main entry interface for querying the authorization management subsystem about
+ * user access to different system resources.
+ *
+ * <p>It provides services for checking access to {@link Resource} instances
+ * as well as services to check if a given permission has been granted to a user.
+ */
+public interface AuthorizationManager {
+
+    /**
+     * Check if the specified user can "access" a given resource. The term "access"
+     * refers to the ability to be able to reach, read or view a resource. For instance,
+     * read a file, view an item in the UI, etc.</p>
+     *
+     * <p>Notice the resource may have dependencies ({@link Resource#getDependencies()}) to
+     * other resources, in such case the resource is only accessible if and only if one of
+     * its dependent references is accessible too.</p>
+     *
+     * @param resource The resource
+     * @param user The user instance
+     *
+     * @return true if access is granted, false otherwise.
+     */
+    boolean authorize(Resource resource, User user);
+
+    /**
+     * Check if the given action can be performed over the specified resource or any of its
+     * dependent resource references (see {@link Resource#getDependencies}).
+     *
+     * @param resource The resource instance to check
+     * @param action The action to check. If null then the {@link AuthorizationManager#authorize(Resource, User)} method is invoked.
+     * @param user The user instance
+     *
+     * @return true if the action is granted, false otherwise.
+     */
+    boolean authorize(Resource resource, ResourceAction action, User user);
+
+    /**
+     * Check of the given permission has been granted to the user.
+     *
+     * @param permission The name of the permission to check
+     * @param user The user instance
+     *
+     * @return true if the permission is granted, false otherwise.
+     */
+    boolean authorize(String permission, User user);
+
+    /**
+     * Check of the given permission has been granted to the user.
+     *
+     * @param permission The name of the permission to check
+     * @param user The user instance
+     *
+     * @return true if the permission is granted, false otherwise.
+     */
+    boolean authorize(Permission permission, User user);
+
+    /**
+     * Creates a brand new {@link AuthorizationCheck} instance which provides a fluent styled API for
+     * the checking of restricted actions over {@link Resource} instances.
+     *
+     * <p>ExampleUsage: </p>
+     * <pre>
+     * {@code User user;
+     *   Resource resource;
+     *   AuthorizationManager authzManager;
+     *
+     *   boolean result = authzManager.check(resource, user)
+     *      .granted(() -> System.out.println("Access granted"))
+     *      .denied(() -> System.out.println("Access denied"))
+     *      .result();
+     * }
+     * </pre>
+     *
+     * @param resource The resource to check
+     * @return A {@link AuthorizationCheck} instance.
+     */
+    AuthorizationCheck check(Resource resource, User user);
+
+    /**
+     * Creates a brand new {@link AuthorizationCheck} instance which provides a
+     * fluent styled API for checking permissions.
+     *
+     * <p>ExampleUsage: </p>
+     * <pre>
+     * {@code User user;
+     *   AuthorizationManager authzManager;
+     *
+     *   boolean result = authzManager.check("myfeature", user)
+     *      .granted(() -> System.out.println("Access granted"))
+     *      .denied(() -> System.out.println("Access denied"))
+     *      .result();
+     * }
+     * </pre>
+     *
+     * @param permission The name of the permission to check
+     * @return A {@link AuthorizationCheck} instance.
+     */
+    AuthorizationCheck check(String permission, User user);
+}

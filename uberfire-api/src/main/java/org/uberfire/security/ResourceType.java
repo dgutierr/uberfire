@@ -20,4 +20,9 @@ package org.uberfire.security;
  * Type interface for {@link Resource} instances
  */
 public interface ResourceType {
+
+    /**
+     * An string representation of this type instance
+     */
+    String getName();
 }

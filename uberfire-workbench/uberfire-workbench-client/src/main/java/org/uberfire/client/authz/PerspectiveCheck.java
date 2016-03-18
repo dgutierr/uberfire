@@ -14,14 +14,28 @@
  * limitations under the License.
  */
 
-package org.uberfire.security.authz;
+package org.uberfire.client.authz;
 
 import org.jboss.errai.security.shared.api.identity.User;
+import org.uberfire.client.mvp.PerspectiveActivity;
 import org.uberfire.security.Resource;
+import org.uberfire.security.authz.AuthorizationManager;
+import org.uberfire.security.authz.AuthorizationCheck;
 
-public interface ResourceDecisionManager {
+/**
+ * A check executed over an {@link PerspectiveActivity} instance.
+ */
+public class PerspectiveCheck extends ActivityCheck {
 
-    boolean supports(final Resource resource);
+    public PerspectiveCheck(AuthorizationManager authorizationManager, Resource resource, User user) {
+        super(authorizationManager, resource, user);
+    }
 
-    AuthorizationResult decide(final Resource resource, final User user, final ProfileDecisionManager profileDecisionManager );
+    public AuthorizationCheck edit() {
+        return super.check(PerspectiveAction.EDIT);
+    }
+
+    public AuthorizationCheck delete() {
+        return super.check(PerspectiveAction.DELETE);
+    }
 }

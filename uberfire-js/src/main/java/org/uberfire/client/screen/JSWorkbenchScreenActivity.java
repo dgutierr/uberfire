@@ -25,6 +25,8 @@ import com.google.gwt.user.client.ui.IsWidget;
 import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.client.mvp.WorkbenchScreenActivity;
 import org.uberfire.mvp.PlaceRequest;
+import org.uberfire.security.ResourceType;
+import org.uberfire.workbench.model.ActivityType;
 import org.uberfire.workbench.model.CompassPosition;
 import org.uberfire.workbench.model.Position;
 import org.uberfire.workbench.model.menu.Menus;
@@ -63,6 +65,11 @@ public class JSWorkbenchScreenActivity implements WorkbenchScreenActivity {
     @Override
     public String getIdentifier() {
         return nativePlugin.getId();
+    }
+
+    @Override
+    public ResourceType getType() {
+        return ActivityType.SCREEN;
     }
 
     @Override
@@ -138,21 +145,6 @@ public class JSWorkbenchScreenActivity implements WorkbenchScreenActivity {
                 placeManager.executeOnOpenCallback( place );
             }
         } );
-    }
-
-    @Override
-    public String getSignatureId() {
-        return nativePlugin.getId();
-    }
-
-    @Override
-    public Collection<String> getRoles() {
-        return nativePlugin.getRoles();
-    }
-
-    @Override
-    public Collection<String> getTraits() {
-        return nativePlugin.getTraits();
     }
 
     // Alias registerPlugin with a global JS function.

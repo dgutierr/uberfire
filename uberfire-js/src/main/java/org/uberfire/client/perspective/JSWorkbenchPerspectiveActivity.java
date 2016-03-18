@@ -20,6 +20,8 @@ import java.util.Collection;
 
 import org.uberfire.client.mvp.PerspectiveActivity;
 import org.uberfire.mvp.PlaceRequest;
+import org.uberfire.security.ResourceType;
+import org.uberfire.workbench.model.ActivityType;
 import org.uberfire.workbench.model.PerspectiveDefinition;
 import org.uberfire.workbench.model.menu.Menus;
 import org.uberfire.workbench.model.toolbar.ToolBar;
@@ -74,6 +76,11 @@ public class JSWorkbenchPerspectiveActivity implements PerspectiveActivity {
     }
 
     @Override
+    public ResourceType getType() {
+        return ActivityType.PERSPECTIVE;
+    }
+
+    @Override
     public boolean isDefault() {
         return nativePerspective.isDefault();
     }
@@ -91,20 +98,5 @@ public class JSWorkbenchPerspectiveActivity implements PerspectiveActivity {
     @Override
     public ToolBar getToolBar() {
         return null;
-    }
-
-    @Override
-    public String getSignatureId() {
-        return nativePerspective.getId();
-    }
-
-    @Override
-    public Collection<String> getRoles() {
-        return nativePerspective.getRoles();
-    }
-
-    @Override
-    public Collection<String> getTraits() {
-        return nativePerspective.getTraits();
     }
 }

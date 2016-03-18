@@ -28,7 +28,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.uberfire.security.Resource;
+import org.uberfire.security.ResourceAction;
+import org.uberfire.security.ResourceRef;
+import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.AuthorizationPolicy;
+import org.uberfire.security.authz.AuthorizationResult;
 import org.uberfire.security.authz.Permission;
 import org.uberfire.security.authz.PermissionCollection;
 import org.uberfire.security.authz.PermissionManager;
@@ -41,6 +46,7 @@ import static org.mockito.Mockito.*;
 public class PermissionManagerTest {
 
     PermissionManager permissionManager;
+    DefaultAuthzResultCache authzResultCache;
     AuthorizationPolicy authorizationPolicy;
     Permission viewAll = new DotNamedPermission("resource.view", true);
     Permission denyAll = new DotNamedPermission("resource.view", false);
@@ -52,6 +58,7 @@ public class PermissionManagerTest {
     protected User createUserMock(String... roles) {
         User user = mock(User.class);
         Set<Role> roleSet = Stream.of(roles).map(RoleImpl::new).collect(Collectors.toSet());
+        when(user.getIdentifier()).thenReturn(Integer.toString(user.hashCode()));
         when(user.getRoles()).thenReturn(roleSet);
         when(user.getGroups()).thenReturn(null);
         return user;
@@ -59,7 +66,8 @@ public class PermissionManagerTest {
 
     @Before
     public void setUp() {
-        permissionManager = new DefaultPermissionManager(new DefaultPermissionTypeRegistry());
+        authzResultCache = spy(new DefaultAuthzResultCache());
+        permissionManager = new DefaultPermissionManager(new DefaultPermissionTypeRegistry(), authzResultCache);
         permissionManager.setAuthorizationPolicy(
                 authorizationPolicy = spy(permissionManager.newAuthorizationPolicy()
                 .role("viewAll").permission("resource.view", true)
@@ -70,8 +78,31 @@ public class PermissionManagerTest {
                 .build()));
     }
 
+
     @Test
-    public void testScenario1() {
+    public void testCreateTypedPermissions() {
+        ResourceType type = mock(ResourceType.class);
+        when(type.getName()).thenReturn("type");
+        ResourceRef r = new ResourceRef("r1", type, null);
+        Permission p = permissionManager.createPermission(r, null, true);
+        assertEquals(p.getName(), "type.view.r1");
+
+        p = permissionManager.createPermission(r, ResourceAction.VIEW, true);
+        assertEquals(p.getName(), "type.view.r1");
+    }
+
+    @Test
+    public void testCreateNonTypedPermissions() {
+        ResourceRef r = new ResourceRef("r1", null, null);
+        Permission p = permissionManager.createPermission(r, null, true);
+        assertEquals(p.getName(), "r1");
+
+        p = permissionManager.createPermission(r, ResourceAction.VIEW, true);
+        assertEquals(p.getName(), "r1");
+    }
+
+    @Test
+    public void testCheckPermission1() {
         User user = createUserMock("viewAll");
         assertEquals(permissionManager.checkPermission(viewAll, user), ACCESS_GRANTED);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_GRANTED);
@@ -80,7 +111,7 @@ public class PermissionManagerTest {
     }
 
     @Test
-    public void testScenario2() {
+    public void testCheckPermission2() {
         User user = createUserMock("viewAll", "onlyView1");
         assertEquals(permissionManager.checkPermission(viewAll, user), ACCESS_DENIED);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_GRANTED);
@@ -89,7 +120,7 @@ public class PermissionManagerTest {
     }
 
     @Test
-    public void testScenario3() {
+    public void testCheckPermission3() {
         User user = createUserMock("viewAll", "onlyView1", "noView1");
         assertEquals(permissionManager.checkPermission(viewAll, user), ACCESS_DENIED);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_GRANTED);
@@ -98,7 +129,7 @@ public class PermissionManagerTest {
     }
 
     @Test
-    public void testScenario4() {
+    public void testCheckPermission4() {
         User user = createUserMock("viewAll", "noView1");
         assertEquals(permissionManager.checkPermission(viewAll, user), ACCESS_GRANTED);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_DENIED);
@@ -107,7 +138,7 @@ public class PermissionManagerTest {
     }
 
     @Test
-    public void testScenario5() {
+    public void testCheckPermission5() {
         User user = createUserMock("onlyView1");
         assertEquals(permissionManager.checkPermission(viewAll, user), ACCESS_DENIED);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_GRANTED);
@@ -116,7 +147,7 @@ public class PermissionManagerTest {
     }
 
     @Test
-    public void testScenario6() {
+    public void testCheckPermission6() {
         User user = createUserMock("noView1");
         assertEquals(permissionManager.checkPermission(viewAll, user), ACCESS_ABSTAIN);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_DENIED);
@@ -125,7 +156,7 @@ public class PermissionManagerTest {
     }
 
     @Test
-    public void testScenario7() {
+    public void testCheckPermission7() {
         User user = createUserMock("onlyView1", "noView1");
         assertEquals(permissionManager.checkPermission(viewAll, user), ACCESS_DENIED);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_GRANTED);
@@ -134,7 +165,7 @@ public class PermissionManagerTest {
     }
 
     @Test
-    public void testScenario8() {
+    public void testCheckPermission8() {
         User user = createUserMock("noView1", "onlyView12");
         assertEquals(permissionManager.checkPermission(viewAll, user), ACCESS_ABSTAIN);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_DENIED);
@@ -207,5 +238,9 @@ public class PermissionManagerTest {
         permissionManager.checkPermission(viewAll, user);
         permissionManager.checkPermission(viewAll, user);
         verify(authorizationPolicy, times(1)).getPermissions(user);
+        verify(authzResultCache, times(1)).put(user, viewAll, AuthorizationResult.ACCESS_GRANTED);
+        verify(authzResultCache, times(4)).get(user, viewAll);
+        assertEquals(authzResultCache.size(user), 1);
+        assertEquals(authzResultCache.size(createUserMock()), 0);
     }
 }

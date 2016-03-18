@@ -138,8 +138,6 @@ public class ScreenActivityGenerator extends AbstractGenerator {
                                                                                  processingEnvironment );
         final String getToolBarMethodName = GeneratorUtils.getToolBarMethodName( classElement,
                                                                                  processingEnvironment );
-        final String securityTraitList = GeneratorUtils.getSecurityTraitList( elementUtils, classElement );
-        final String rolesList = GeneratorUtils.getRoleList( elementUtils, classElement );
 
         if ( GeneratorUtils.debugLoggingEnabled() ) {
             messager.printMessage( Kind.NOTE, "Package name: " + packageName );
@@ -165,8 +163,6 @@ public class ScreenActivityGenerator extends AbstractGenerator {
             messager.printMessage( Kind.NOTE, "hasUberView: " + Boolean.toString( hasUberView ) );
             messager.printMessage( Kind.NOTE, "getMenuBarMethodName: " + getMenuBarMethodName );
             messager.printMessage( Kind.NOTE, "getToolBarMethodName: " + getToolBarMethodName );
-            messager.printMessage( Kind.NOTE, "securityTraitList: " + securityTraitList );
-            messager.printMessage( Kind.NOTE, "rolesList: " + rolesList );
         }
 
         //Validate getWidgetMethodName and isWidget
@@ -235,10 +231,6 @@ public class ScreenActivityGenerator extends AbstractGenerator {
                   getMenuBarMethodName );
         root.put( "getToolBarMethodName",
                   getToolBarMethodName );
-        root.put( "securityTraitList",
-                  securityTraitList );
-        root.put( "rolesList",
-                  rolesList );
 
         //Generate code
         final StringWriter sw = new StringWriter();
