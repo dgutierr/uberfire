@@ -15,23 +15,30 @@
  */
 package org.uberfire.backend.server.authz;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.uberfire.backend.authz.AuthorizationPolicyStorage;
 import org.uberfire.security.authz.AuthorizationPolicy;
 import org.uberfire.security.authz.PermissionManager;
 import org.uberfire.security.impl.authz.AuthorizationPolicyBuilder;
 
 /**
- * This implementation stores the authorization policy in a properties file.
+ * An implementation that stores the authorization policy in property files.
  *
  * <p>The format of the entries are:</p>
  *
@@ -67,12 +74,20 @@ import org.uberfire.security.impl.authz.AuthorizationPolicyBuilder;
  * role.user.permission.perspective.view.Home=true
  * role.user.permission.perspective.view.Dashboard=true
  * </pre>
+ *
+ * <p>Notice also, the entries can be split into multiple property files. The "{@code security-policy.properties}"
+ * file is always mandatory and it serves as a marker file. Alongside that file, several
+ * "{@code security-module-?.properties}" files can be created. The storage implementation will read all of them.</p>
+ *
+ * <p>The split mechanism allows either for the creation of just a single full standalone policy file or multiple
+ * module files each of them containing different entries. The way those files are defined is always up to the
+ * application developer.</p>
  *</p>
  */
 @ApplicationScoped
-public class AuthorizationPolicyStorage {
+public class DefaultSecurityPolicyStorage implements AuthorizationPolicyStorage {
 
-    private Logger logger = LoggerFactory.getLogger(AuthorizationPolicyStorage.class);
+    private Logger logger = LoggerFactory.getLogger(DefaultSecurityPolicyStorage.class);
 
     private static final String ROLE = "role";
     private static final String GROUP = "group";
@@ -83,34 +98,60 @@ public class AuthorizationPolicyStorage {
 
     private PermissionManager permissionManager;
 
-    public AuthorizationPolicyStorage() {
+    public DefaultSecurityPolicyStorage() {
     }
 
     @Inject
-    public AuthorizationPolicyStorage(PermissionManager permissionManager) {
+    public DefaultSecurityPolicyStorage(PermissionManager permissionManager) {
         this.permissionManager = permissionManager;
     }
 
+    @Override
     public AuthorizationPolicy loadPolicy() {
         URL fileURL = Thread.currentThread().getContextClassLoader().getResource("security-policy.properties");
-        return loadPolicy(fileURL);
+        if (fileURL != null) {
+            AuthorizationPolicy policy = loadPolicy(new File(fileURL.getPath()).getParentFile());
+
+            logger.info("Security policy loaded: " + fileURL.getPath());
+            return policy;
+        } else {
+            logger.info("Security policy not detected.");
+            return null;
+        }
     }
 
-    public AuthorizationPolicy loadPolicy(URL url) {
-        if (url == null) {
+    public AuthorizationPolicy loadPolicy(File policyDir) {
+        if (policyDir == null) {
             return null;
         }
         AuthorizationPolicyBuilder builder = permissionManager.newAuthorizationPolicy();
 
-        try (InputStreamReader reader = new InputStreamReader(url.openStream())) {
+        try {
+            Files.list(policyDir.toPath())
+                    .map(Path::toFile)
+                    .filter(f -> isPolicyFile(f.getName()))
+                    .forEach(f -> loadPolicyFile(builder, f));
+        }
+        catch (IOException e) {
+            logger.warn("Error loading security policy files", e);
+        }
+        return builder.build();
+    }
+
+    public boolean isPolicyFile(String fileName) {
+        return fileName != null &&
+                (fileName.equals("security-policy.properties") ||
+                        fileName.startsWith("security-module-"));
+    }
+
+    public void loadPolicyFile(AuthorizationPolicyBuilder builder, File file) {
+        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file))) {
             Properties p = new Properties();
             p.load(reader);
             p.forEach((x,y) -> processEntry(builder, x.toString(), y.toString()));
-            return builder.build();
         }
         catch (IOException e) {
             logger.error("Authorization Policy load error", e);
-            return null;
         }
     }
 
@@ -183,6 +224,7 @@ public class AuthorizationPolicyStorage {
         return result;
     }
 
+    @Override
     public void savePolicy(AuthorizationPolicy policy) {
 
     }

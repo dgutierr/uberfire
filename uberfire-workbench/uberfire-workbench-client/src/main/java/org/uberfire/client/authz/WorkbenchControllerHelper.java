@@ -21,7 +21,7 @@ import org.uberfire.client.mvp.PerspectiveActivity;
 import org.uberfire.security.authz.VotingStrategy;
 
 /**
- * A helper class providing static method access to the {@link WorkbenchController} underlying instance.
+ * A helper class providing static methods on top of the {@link WorkbenchController} functionality.
  *
  * <p>Example usage:</p>
  * <pre>
