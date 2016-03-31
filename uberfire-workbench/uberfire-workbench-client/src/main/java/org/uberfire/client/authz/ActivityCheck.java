@@ -17,9 +17,11 @@
 package org.uberfire.client.authz;
 
 import org.jboss.errai.security.shared.api.identity.User;
+import org.uberfire.client.mvp.Activity;
 import org.uberfire.security.Resource;
 import org.uberfire.security.authz.AuthorizationManager;
 import org.uberfire.security.authz.AuthorizationCheck;
+import org.uberfire.security.authz.VotingStrategy;
 import org.uberfire.security.impl.authz.ResourceCheck;
 
 /**
@@ -27,8 +29,8 @@ import org.uberfire.security.impl.authz.ResourceCheck;
  */
 public class ActivityCheck extends ResourceCheck {
 
-    public ActivityCheck(AuthorizationManager authorizationManager, Resource resource, User user) {
-        super(authorizationManager, resource, user);
+    public ActivityCheck(AuthorizationManager authorizationManager, Resource resource, User user, VotingStrategy votingStrategy) {
+        super(authorizationManager, resource, user, votingStrategy);
     }
 
     public AuthorizationCheck view() {

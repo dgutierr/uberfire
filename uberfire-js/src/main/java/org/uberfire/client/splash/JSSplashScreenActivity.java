@@ -85,7 +85,7 @@ public class JSSplashScreenActivity implements SplashScreenActivity {
     }
 
     @Override
-    public ResourceType getType() {
+    public ResourceType getResourceType() {
         return ActivityType.SPLASH;
     }
 

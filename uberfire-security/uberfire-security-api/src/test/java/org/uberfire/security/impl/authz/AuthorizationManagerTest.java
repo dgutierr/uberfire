@@ -37,6 +37,7 @@ import org.uberfire.security.authz.PermissionType;
 import org.uberfire.security.authz.PermissionTypeRegistry;
 import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.RuntimeResource;
+import org.uberfire.security.authz.VotingStrategy;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -97,8 +98,8 @@ public class AuthorizationManagerTest {
         when(perspective2.getIdentifier()).thenReturn("p2");
         when(perspective1.getDependencies()).thenReturn(null);
         when(perspective2.getDependencies()).thenReturn(null);
-        when(perspective1.getType()).thenReturn(perspectiveType);
-        when(perspective2.getType()).thenReturn(perspectiveType);
+        when(perspective1.getResourceType()).thenReturn(perspectiveType);
+        when(perspective2.getResourceType()).thenReturn(perspectiveType);
 
         when(menuPerspective1.getDependencies()).thenReturn(Arrays.asList(perspective1));
         when(menuPerspective2.getDependencies()).thenReturn(Arrays.asList(perspective2));
@@ -113,6 +114,8 @@ public class AuthorizationManagerTest {
                         .permission("perspective.view", true)
                         .permission("perspective.view.p2", false)
                         .permission("custom.resource2", true)
+                        .role("manager")
+                        .permission("perspective.view", false)
                         .build());
     }
 
@@ -142,28 +145,28 @@ public class AuthorizationManagerTest {
         when(resource2.getIdentifier()).thenReturn("custom.resource2");
         boolean result = authorizationManager.authorize(resource2, user);
         assertEquals(result, true);
-        verify(permissionManager).checkPermission(any(Permission.class), any(User.class));
+        verify(permissionManager).checkPermission(any(Permission.class), any(User.class), eq(null));
     }
 
     @Test
     public void testPerspectiveAccessGranted() {
         boolean result = authorizationManager.authorize(perspective1, user);
         assertEquals(result, true);
-        verify(permissionManager).checkPermission(any(Permission.class), any(User.class));
+        verify(permissionManager).checkPermission(any(Permission.class), any(User.class), eq(null));
     }
 
     @Test
     public void testPerspectiveAccessDenied() {
         boolean result = authorizationManager.authorize(perspective2, user);
         assertEquals(result, false);
-        verify(permissionManager).checkPermission(any(Permission.class), any(User.class));
+        verify(permissionManager).checkPermission(any(Permission.class), any(User.class), eq(null));
     }
 
     @Test
     public void testMenuItemGranted() {
         boolean result = authorizationManager.authorize(menuPerspective1, user);
         assertEquals(result, true);
-        verify(permissionManager).checkPermission(any(Permission.class), any(User.class));
+        verify(permissionManager).checkPermission(any(Permission.class), any(User.class), eq(null));
     }
 
     @Test
@@ -257,5 +260,29 @@ public class AuthorizationManagerTest {
                 .denied(onDenied);
         verify(onGranted).execute();
         verify(onDenied, never()).execute();
+    }
+
+    @Test
+    public void testVotingUnanimous() throws Exception {
+        User user1 = createUserMock("admin", "manager");
+        assertFalse(authorizationManager.authorize(perspective1, user1, VotingStrategy.UNANIMOUS));
+
+        authorizationManager.check(perspective1, user1, VotingStrategy.UNANIMOUS)
+                .granted(onGranted)
+                .denied(onDenied);
+        verify(onGranted, never()).execute();
+        verify(onDenied).execute();
+    }
+
+    @Test
+    public void testVotingAffirmative() throws Exception {
+        User user1 = createUserMock("admin", "manager");
+        assertTrue(authorizationManager.authorize(perspective1, user1, VotingStrategy.AFFIRMATIVE));
+
+        authorizationManager.check(perspective1, user1, VotingStrategy.AFFIRMATIVE)
+                .granted(onGranted)
+                .denied(onDenied);
+        verify(onDenied, never()).execute();
+        verify(onGranted).execute();
     }
 }

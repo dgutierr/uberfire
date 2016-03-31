@@ -52,7 +52,7 @@ public abstract class AbstractPopupActivity extends AbstractActivity implements 
     }
 
     @Override
-    public ResourceType getType() {
+    public ResourceType getResourceType() {
         return ActivityType.POPUP;
     }
 

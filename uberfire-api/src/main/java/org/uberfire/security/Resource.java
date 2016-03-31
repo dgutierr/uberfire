@@ -26,7 +26,7 @@ import java.util.List;
 public interface Resource {
 
     /**
-     * An identifier that is unique among all the resources of the same type (see {@link Resource#getType()}).
+     * An identifier that is unique among all the resources of the same type (see {@link Resource#getResourceType()}).
      */
     default String getIdentifier() {
         return null;
@@ -35,7 +35,7 @@ public interface Resource {
     /**
      * Get the resource type classifier
      */
-    default ResourceType getType() {
+    default ResourceType getResourceType() {
         return null;
     }
 

@@ -16,8 +16,11 @@
 
 package org.uberfire.client.authz;
 
+import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.client.mvp.Activity;
 import org.uberfire.client.mvp.PerspectiveActivity;
+import org.uberfire.security.authz.PermissionManager;
+import org.uberfire.security.authz.VotingStrategy;
 
 /**
  * An interface for checking access to workbench resources (perspectives, screens, editors, ...)
@@ -43,7 +46,7 @@ public interface WorkbenchController {
      *
      * @return A handler for dealing with activity the check API.
      */
-    ActivityCheck check(Activity activity);
+    ActivityCheck check(Activity activity, VotingStrategy votingStrategy);
 
     /**
      * Creates a brand new instance for checking actions over {@link PerspectiveActivity} instances.
@@ -51,6 +54,18 @@ public interface WorkbenchController {
      * @param perspective The PerspectiveActivity instance
      *
      * @return A handler for dealing with the perspective check API.
+     */
+    PerspectiveCheck check(PerspectiveActivity perspective, VotingStrategy votingStrategy);
+
+    /**
+     * It redirects to {@link #check(Activity, VotingStrategy)}
+     * using the default voting strategy defined at {@link PermissionManager}.
+     */
+    ActivityCheck check(Activity activity);
+
+    /**
+     * It redirects to {@link #check(PerspectiveActivity, VotingStrategy)}
+     * using the default voting strategy defined at {@link PermissionManager}.
      */
     PerspectiveCheck check(PerspectiveActivity perspective);
 }

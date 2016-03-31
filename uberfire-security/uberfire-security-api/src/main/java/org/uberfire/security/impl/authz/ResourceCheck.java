@@ -22,6 +22,7 @@ import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceAction;
 import org.uberfire.security.authz.AuthorizationManager;
 import org.uberfire.security.authz.AuthorizationCheck;
+import org.uberfire.security.authz.VotingStrategy;
 
 /**
  * A check executed over a {@link Resource} instance.
@@ -31,16 +32,22 @@ public class ResourceCheck implements AuthorizationCheck {
     protected AuthorizationManager authorizationManager;
     protected Resource resource;
     protected User user;
+    protected VotingStrategy votingStrategy;
     protected Boolean result = null;
 
-    public ResourceCheck(AuthorizationManager authorizationManager, Resource resource, User user) {
+    public ResourceCheck(AuthorizationManager authorizationManager, Resource resource, User user, VotingStrategy votingStrategy) {
         this.authorizationManager = authorizationManager;
         this.resource = resource;
         this.user = user;
+        this.votingStrategy = votingStrategy;
     }
 
     protected ResourceCheck check(ResourceAction action) {
-        result = authorizationManager.authorize(resource, action, user);
+        if (votingStrategy == null) {
+            result = authorizationManager.authorize(resource, action, user);
+        } else {
+            result = authorizationManager.authorize(resource, action, user, votingStrategy);
+        }
         return this;
     }
 

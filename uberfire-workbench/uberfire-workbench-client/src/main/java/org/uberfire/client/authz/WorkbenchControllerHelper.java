@@ -18,6 +18,7 @@ package org.uberfire.client.authz;
 
 import org.uberfire.client.mvp.Activity;
 import org.uberfire.client.mvp.PerspectiveActivity;
+import org.uberfire.security.authz.VotingStrategy;
 
 /**
  * A helper class providing static method access to the {@link WorkbenchController} underlying instance.
@@ -37,10 +38,10 @@ import org.uberfire.client.mvp.PerspectiveActivity;
 public class WorkbenchControllerHelper {
 
     /**
-     * See {@link WorkbenchController#check(Activity)}
+     * See {@link WorkbenchController#check(Activity, VotingStrategy)}
      */
-    public static ActivityCheck check(Activity activity) {
-        return DefaultWorkbenchController.get().check(activity);
+    public static ActivityCheck check(Activity activity, VotingStrategy votingStrategy) {
+        return DefaultWorkbenchController.get().check(activity, votingStrategy);
     }
 
     /**
@@ -48,5 +49,19 @@ public class WorkbenchControllerHelper {
      */
     public static PerspectiveCheck check(PerspectiveActivity perspective) {
         return DefaultWorkbenchController.get().check(perspective);
+    }
+
+    /**
+     * See {@link WorkbenchController#check(Activity)}
+     */
+    public static ActivityCheck check(Activity activity) {
+        return DefaultWorkbenchController.get().check(activity);
+    }
+
+    /**
+     * See {@link WorkbenchController#check(PerspectiveActivity, VotingStrategy)}
+     */
+    public static PerspectiveCheck check(PerspectiveActivity perspective, VotingStrategy votingStrategy) {
+        return DefaultWorkbenchController.get().check(perspective, votingStrategy);
     }
 }

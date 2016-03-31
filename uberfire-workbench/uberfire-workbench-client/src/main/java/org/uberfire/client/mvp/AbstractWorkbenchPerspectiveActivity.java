@@ -33,7 +33,7 @@ public abstract class AbstractWorkbenchPerspectiveActivity extends AbstractActiv
     }
 
     @Override
-    public ResourceType getType() {
+    public ResourceType getResourceType() {
         return ActivityType.PERSPECTIVE;
     }
 

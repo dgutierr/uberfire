@@ -26,6 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.uberfire.client.mvp.PerspectiveActivity;
 import org.uberfire.mvp.Command;
 import org.uberfire.security.authz.AuthorizationManager;
+import org.uberfire.security.authz.VotingStrategy;
 
 import static org.mockito.Mockito.*;
 
