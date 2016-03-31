@@ -54,7 +54,6 @@ public class IOServiceSecuritySetup {
     Instance<AuthenticationService> authenticationManagers;
 
     @Inject
-    @IOSecurityAuthz
     AuthorizationManager authorizationManager;
 
     @PostConstruct

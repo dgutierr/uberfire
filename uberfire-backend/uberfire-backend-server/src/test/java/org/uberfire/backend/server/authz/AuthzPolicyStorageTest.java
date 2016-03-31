@@ -15,6 +15,7 @@
  */
 package org.uberfire.backend.server.authz;
 
+import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
@@ -36,13 +37,13 @@ import static org.junit.Assert.*;
 
 public class AuthzPolicyStorageTest {
 
-    AuthorizationPolicyStorage authzPolicyStorage;
+    DefaultSecurityPolicyStorage authzPolicyStorage;
 
     @Before
     public void setUp() {
         PermissionTypeRegistry permissionTypeRegistry = new DefaultPermissionTypeRegistry();
         PermissionManager permissionManager = new DefaultPermissionManager(permissionTypeRegistry);
-        authzPolicyStorage = new AuthorizationPolicyStorage(permissionManager);
+        authzPolicyStorage = new DefaultSecurityPolicyStorage(permissionManager);
     }
 
     @Test
@@ -90,14 +91,22 @@ public class AuthzPolicyStorageTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidPolicy() {
-        URL fileURL = Thread.currentThread().getContextClassLoader().getResource("WEB-INF/classes/invalid-policy.properties");
-        authzPolicyStorage.loadPolicy(fileURL);
+        testPolicyLoad("WEB-INF/classes/invalid/security-policy.properties");
     }
 
     @Test
     public void testPolicyLoad() {
-        URL fileURL = Thread.currentThread().getContextClassLoader().getResource("WEB-INF/classes/security-policy.properties");
-        AuthorizationPolicy policy = authzPolicyStorage.loadPolicy(fileURL);
+        testPolicyLoad("WEB-INF/classes/security-policy.properties");
+    }
+
+    @Test
+    public void testPolicyLoad2() {
+        testPolicyLoad("WEB-INF/classes/split/security-policy.properties");
+    }
+
+    public void testPolicyLoad(String path) {
+        URL fileURL = Thread.currentThread().getContextClassLoader().getResource(path);
+        AuthorizationPolicy policy = authzPolicyStorage.loadPolicy(new File(fileURL.getPath()).getParentFile());
 
         Set<Role> roles = policy.getRoles();
         assertEquals(roles.size(), 3);
@@ -106,8 +115,8 @@ public class AuthzPolicyStorageTest {
         PermissionCollection permissions = policy.getPermissions(adminRole);
         assertTrue(roles.contains(adminRole));
         assertEquals(policy.getRoleDescription(adminRole), "Administrator");
-        assertEquals(policy.getPriority(adminRole), 0);
-        assertEquals(permissions.collection().size(), 2);
+        assertEquals(policy.getPriority(adminRole), 1);
+        assertEquals(permissions.collection().size(), 3);
 
         Permission permission = permissions.get("perspective.view");
         assertNotNull(permission);
@@ -122,7 +131,8 @@ public class AuthzPolicyStorageTest {
         permissions = policy.getPermissions(userRole);
         assertTrue(roles.contains(userRole));
         assertEquals(policy.getRoleDescription(userRole), "End user");
-        assertEquals(permissions.collection().size(), 3);
+        assertEquals(policy.getPriority(userRole), 2);
+        assertEquals(permissions.collection().size(), 4);
 
         permission = permissions.get("perspective.view");
         assertNotNull(permission);
@@ -140,7 +150,8 @@ public class AuthzPolicyStorageTest {
         permissions = policy.getPermissions(managerRole);
         assertTrue(roles.contains(managerRole));
         assertEquals(policy.getRoleDescription(managerRole), "Manager");
-        assertEquals(permissions.collection().size(), 1);
+        assertEquals(policy.getPriority(managerRole), 3);
+        assertEquals(permissions.collection().size(), 2);
 
         permission = permissions.get("perspective.view");
         assertNotNull(permission);
