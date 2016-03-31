@@ -76,7 +76,7 @@ public class JSWorkbenchPerspectiveActivity implements PerspectiveActivity {
     }
 
     @Override
-    public ResourceType getType() {
+    public ResourceType getResourceType() {
         return ActivityType.PERSPECTIVE;
     }
 

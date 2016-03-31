@@ -40,42 +40,50 @@ public interface AuthorizationManager {
      *
      * @param resource The resource
      * @param user The user instance
+     * @param votingStrategy The voting strategy to use when voting is required
+     * (users with more than one role and/or group assigned).
      *
      * @return true if access is granted, false otherwise.
      */
-    boolean authorize(Resource resource, User user);
+    boolean authorize(Resource resource, User user, VotingStrategy votingStrategy);
 
     /**
      * Check if the given action can be performed over the specified resource or any of its
      * dependent resource references (see {@link Resource#getDependencies}).
      *
      * @param resource The resource instance to check
-     * @param action The action to check. If null then the {@link AuthorizationManager#authorize(Resource, User)} method is invoked.
+     * @param action The action to check. If null then the {@link #authorize(Resource, User)} method is invoked.
      * @param user The user instance
+     * @param votingStrategy The voting strategy to use when voting is required
+     * (users with more than one role and/or group assigned).
      *
      * @return true if the action is granted, false otherwise.
      */
-    boolean authorize(Resource resource, ResourceAction action, User user);
+    boolean authorize(Resource resource, ResourceAction action, User user, VotingStrategy votingStrategy);
 
     /**
      * Check of the given permission has been granted to the user.
      *
      * @param permission The name of the permission to check
      * @param user The user instance
+     * @param votingStrategy The voting strategy to use when voting is required
+     * (users with more than one role and/or group assigned).
      *
      * @return true if the permission is granted, false otherwise.
      */
-    boolean authorize(String permission, User user);
+    boolean authorize(String permission, User user, VotingStrategy votingStrategy);
 
     /**
      * Check of the given permission has been granted to the user.
      *
      * @param permission The name of the permission to check
      * @param user The user instance
+     * @param votingStrategy The voting strategy to use when voting is required
+     * (users with more than one role and/or group assigned).
      *
      * @return true if the permission is granted, false otherwise.
      */
-    boolean authorize(Permission permission, User user);
+    boolean authorize(Permission permission, User user, VotingStrategy votingStrategy);
 
     /**
      * Creates a brand new {@link AuthorizationCheck} instance which provides a fluent styled API for
@@ -95,9 +103,12 @@ public interface AuthorizationManager {
      * </pre>
      *
      * @param resource The resource to check
+     * @param votingStrategy The voting strategy to use when voting is required
+     * (users with more than one role and/or group assigned).
+     *
      * @return A {@link AuthorizationCheck} instance.
      */
-    AuthorizationCheck check(Resource resource, User user);
+    AuthorizationCheck check(Resource resource, User user, VotingStrategy votingStrategy);
 
     /**
      * Creates a brand new {@link AuthorizationCheck} instance which provides a
@@ -116,7 +127,46 @@ public interface AuthorizationManager {
      * </pre>
      *
      * @param permission The name of the permission to check
+     * @param votingStrategy The voting strategy to use when voting is required
+     * (users with more than one role and/or group assigned).
+     *
      * @return A {@link AuthorizationCheck} instance.
+     */
+    AuthorizationCheck check(String permission, User user, VotingStrategy votingStrategy);
+
+    /**
+     * It redirects to {@link #authorize(Resource, User, VotingStrategy)}
+     * using the default voting strategy defined at {@link PermissionManager}.
+     */
+    boolean authorize(Resource resource, User user);
+
+    /**
+     * It redirects to {@link #authorize(Resource, ResourceAction, User)}
+     * using the default voting strategy defined at {@link PermissionManager}.
+     */
+    boolean authorize(Resource resource, ResourceAction action, User user);
+
+    /**
+     * It redirects to {@link #authorize(String, User, VotingStrategy)}
+     * using the default voting strategy defined at {@link PermissionManager}.
+     */
+    boolean authorize(String permission, User user);
+
+    /**
+     * It redirects to {@link #authorize(Permission, User, VotingStrategy)}
+     * using the default voting strategy defined at {@link PermissionManager}.
+     */
+    boolean authorize(Permission permission, User user);
+
+    /**
+     * It redirects to {@link #check(Resource, User, VotingStrategy)}
+     * using the default voting strategy defined at {@link PermissionManager}.
+     */
+    AuthorizationCheck check(Resource resource, User user);
+
+    /**
+     * It redirects to {@link #check(String, User, VotingStrategy)}
+     * using the default voting strategy defined at {@link PermissionManager}.
      */
     AuthorizationCheck check(String permission, User user);
 }

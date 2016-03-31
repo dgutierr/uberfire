@@ -21,14 +21,15 @@ import org.uberfire.client.mvp.PerspectiveActivity;
 import org.uberfire.security.Resource;
 import org.uberfire.security.authz.AuthorizationManager;
 import org.uberfire.security.authz.AuthorizationCheck;
+import org.uberfire.security.authz.VotingStrategy;
 
 /**
  * A check executed over an {@link PerspectiveActivity} instance.
  */
 public class PerspectiveCheck extends ActivityCheck {
 
-    public PerspectiveCheck(AuthorizationManager authorizationManager, Resource resource, User user) {
-        super(authorizationManager, resource, user);
+    public PerspectiveCheck(AuthorizationManager authorizationManager, Resource resource, User user, VotingStrategy votingStrategy) {
+        super(authorizationManager, resource, user, votingStrategy);
     }
 
     public AuthorizationCheck edit() {

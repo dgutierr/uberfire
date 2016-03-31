@@ -41,7 +41,7 @@ public class DefaultAuthzResultCache {
         }
         final Map<String, AuthorizationResult> result = internal.get(permission);
         AuthorizationResult knowValue = result.get(user.getIdentifier());
-        if (!(result.containsKey(user.getIdentifier()) && knowValue.equals(authzResult))) {
+        if (!(result.containsKey(user.getIdentifier()) && authzResult.equals(knowValue))) {
             result.put(user.getIdentifier(), authzResult);
         }
     }

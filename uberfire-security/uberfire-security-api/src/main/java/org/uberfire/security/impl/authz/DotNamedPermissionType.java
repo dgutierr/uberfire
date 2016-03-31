@@ -50,7 +50,7 @@ public class DotNamedPermissionType implements PermissionType {
     @Override
     public Permission createPermission(Resource resource, ResourceAction action, boolean granted) {
         ResourceAction _action = action != null ? action : ResourceAction.VIEW;
-        String name = buildPermissionName(resource.getType(),
+        String name = buildPermissionName(resource.getResourceType(),
                 _action.getName().toLowerCase(),
                 resource.getIdentifier());
 

@@ -53,7 +53,7 @@ public abstract class AbstractSplashScreenActivity extends AbstractActivity impl
     }
 
     @Override
-    public ResourceType getType() {
+    public ResourceType getResourceType() {
         return ActivityType.SPLASH;
     }
 

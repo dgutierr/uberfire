@@ -23,6 +23,7 @@ import org.uberfire.security.authz.AuthorizationCheck;
 import org.uberfire.security.authz.AuthorizationResult;
 import org.uberfire.security.authz.Permission;
 import org.uberfire.security.authz.PermissionManager;
+import org.uberfire.security.authz.VotingStrategy;
 
 /**
  * A check executed over a {@link Permission} instance.
@@ -32,17 +33,19 @@ public class PermissionCheck implements AuthorizationCheck {
     protected PermissionManager permissionManager;
     protected String permission;
     protected User user;
+    protected VotingStrategy votingStrategy;
     protected Boolean result = null;
 
-    public PermissionCheck(PermissionManager permissionManager, String permission, User user) {
+    public PermissionCheck(PermissionManager permissionManager, String permission, User user, VotingStrategy votingStrategy) {
         this.permissionManager = permissionManager;
         this.permission = permission;
         this.user = user;
+        this.votingStrategy = votingStrategy;
     }
 
     protected PermissionCheck check() {
         Permission p = permissionManager.createPermission(permission, true);
-        AuthorizationResult authz = permissionManager.checkPermission(p, user);
+        AuthorizationResult authz = permissionManager.checkPermission(p, user, votingStrategy);
         result = !AuthorizationResult.ACCESS_DENIED.equals(authz);
         return this;
     }

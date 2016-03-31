@@ -15,9 +15,15 @@
  */
 package org.uberfire.security.impl.authz;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.jboss.errai.security.shared.api.Group;
+import org.jboss.errai.security.shared.api.Role;
 import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceAction;
@@ -28,6 +34,8 @@ import org.uberfire.security.authz.PermissionCollection;
 import org.uberfire.security.authz.PermissionManager;
 import org.uberfire.security.authz.PermissionType;
 import org.uberfire.security.authz.PermissionTypeRegistry;
+import org.uberfire.security.authz.VotingAlgorithm;
+import org.uberfire.security.authz.VotingStrategy;
 
 import static org.uberfire.security.authz.AuthorizationResult.*;
 
@@ -37,19 +45,24 @@ public class DefaultPermissionManager implements PermissionManager {
     private PermissionTypeRegistry permissionTypeRegistry;
     private AuthorizationPolicy authorizationPolicy;
     private DefaultAuthzResultCache cache;
+    private VotingStrategy defaultVotingStrategy = VotingStrategy.PRIORITY;
+    private Map<VotingStrategy,VotingAlgorithm> votingAlgorithmMap = new HashMap<>();
 
     public DefaultPermissionManager() {
+        setVotingAlgorithm(VotingStrategy.AFFIRMATIVE, new AffirmativeBasedVoter());
+        setVotingAlgorithm(VotingStrategy.CONSENSUS, new ConsensusBasedVoter());
+        setVotingAlgorithm(VotingStrategy.UNANIMOUS, new UnanimousBasedVoter());
+    }
+
+    public DefaultPermissionManager(PermissionTypeRegistry permissionTypeRegistry, DefaultAuthzResultCache cache) {
+        this();
+        this.permissionTypeRegistry = permissionTypeRegistry;
+        this.cache = cache;
     }
 
     @Inject
     public DefaultPermissionManager(PermissionTypeRegistry permissionTypeRegistry) {
-        this.permissionTypeRegistry = permissionTypeRegistry;
-        this.cache = new DefaultAuthzResultCache();
-    }
-
-    public DefaultPermissionManager(PermissionTypeRegistry permissionTypeRegistry, DefaultAuthzResultCache cache) {
-        this.permissionTypeRegistry = permissionTypeRegistry;
-        this.cache = cache;
+        this(permissionTypeRegistry, new DefaultAuthzResultCache());
     }
 
     public AuthorizationPolicy getAuthorizationPolicy() {
@@ -67,6 +80,24 @@ public class DefaultPermissionManager implements PermissionManager {
     }
 
     @Override
+    public void setDefaultVotingStrategy(VotingStrategy votingStrategy) {
+        defaultVotingStrategy = votingStrategy;
+    }
+
+    @Override
+    public VotingStrategy getDefaultVotingStrategy() {
+        return defaultVotingStrategy;
+    }
+
+    public VotingAlgorithm getVotingAlgorithm(VotingStrategy votingStrategy) {
+        return votingAlgorithmMap.get(votingStrategy);
+    }
+
+    public void setVotingAlgorithm(VotingStrategy votingStrategy, VotingAlgorithm votingAlgorithm) {
+        votingAlgorithmMap.put(votingStrategy, votingAlgorithm);
+    }
+
+    @Override
     public Permission createPermission(String name, boolean granted) {
         PermissionType permissionType = permissionTypeRegistry.resolve(name);
         return permissionType.createPermission(name, granted);
@@ -78,8 +109,8 @@ public class DefaultPermissionManager implements PermissionManager {
         // Does the resource have a type?
 
         // YES => check the resource action f.i: "project.view.myprojectid"
-        if (resource.getType() != null) {
-            PermissionType permissionType = permissionTypeRegistry.resolve(resource.getType().getName());
+        if (resource.getResourceType() != null) {
+            PermissionType permissionType = permissionTypeRegistry.resolve(resource.getResourceType().getName());
             return permissionType.createPermission(resource, action, granted);
         }
         // NO => just check the resource identifier
@@ -88,20 +119,56 @@ public class DefaultPermissionManager implements PermissionManager {
 
     @Override
     public AuthorizationResult checkPermission(Permission permission, User user) {
+        return checkPermission(permission, user, defaultVotingStrategy);
+    }
+
+    @Override
+    public AuthorizationResult checkPermission(Permission permission, User user, VotingStrategy votingStrategy) {
 
         if (authorizationPolicy == null || permission == null) {
             return ACCESS_ABSTAIN;
         }
         AuthorizationResult result = cache.get(user, permission);
         if (result == null) {
-            PermissionCollection userPermissions = authorizationPolicy.getPermissions(user);
-            result = checkPermission(permission, userPermissions);
+            result = _checkPermission(permission, user, votingStrategy == null ? defaultVotingStrategy : votingStrategy);
             cache.put(user, permission, result);
         }
         return result;
     }
 
-    protected AuthorizationResult checkPermission(Permission permission, PermissionCollection collection) {
+    protected AuthorizationResult _checkPermission(Permission permission, User user, VotingStrategy votingStrategy) {
+
+        if (VotingStrategy.PRIORITY.equals(votingStrategy)) {
+            PermissionCollection userPermissions = authorizationPolicy.getPermissions(user);
+            return _checkPermission(permission, userPermissions);
+        }
+        else {
+            List<AuthorizationResult> permList = _checkRoleAndGroupPermissions(permission, user);
+            VotingAlgorithm votingAlgorithm = votingAlgorithmMap.get(votingStrategy);
+            return votingAlgorithm.vote(permList);
+        }
+    }
+
+    protected List<AuthorizationResult> _checkRoleAndGroupPermissions(Permission permission, User user) {
+        List<AuthorizationResult> result = new ArrayList<>();
+        if (user.getRoles() != null) {
+            for (Role role : user.getRoles()) {
+                PermissionCollection collection = authorizationPolicy.getPermissions(role);
+                AuthorizationResult _partialResult = _checkPermission(permission, collection);
+                result.add(_partialResult);
+            }
+        }
+        if (user.getGroups() != null) {
+            for (Group group : user.getGroups()) {
+                PermissionCollection collection = authorizationPolicy.getPermissions(group);
+                AuthorizationResult _partialResult = _checkPermission(permission, collection);
+                result.add(_partialResult);
+            }
+        }
+        return result;
+    }
+
+    protected AuthorizationResult _checkPermission(Permission permission, PermissionCollection collection) {
         if (collection == null) {
             return ACCESS_ABSTAIN;
         }

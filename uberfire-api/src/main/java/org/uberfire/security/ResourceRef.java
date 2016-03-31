@@ -43,11 +43,11 @@ public class ResourceRef implements Resource {
     }
 
     @Override
-    public ResourceType getType() {
+    public ResourceType getResourceType() {
         return type;
     }
 
-    public void setType(ResourceType type) {
+    public void setResourceType(ResourceType type) {
         this.type = type;
     }
 

@@ -59,6 +59,40 @@ public interface PermissionManager {
     void setAuthorizationPolicy(AuthorizationPolicy authorizationPolicy);
 
     /**
+     * Set the default voting strategy to apply when checking permissions for users who have
+     * more than one role and/or group assigned.
+     *
+     * @param votingStrategy The voting strategy to apply when calling to
+     * {@link #checkPermission(Permission, User)}
+     */
+    void setDefaultVotingStrategy(VotingStrategy votingStrategy);
+
+    /**
+     * Gets the default voting strategy.
+     *
+     * @return  A {@link VotingStrategy} instance
+     */
+    VotingStrategy getDefaultVotingStrategy();
+
+    /**
+     * Gets the {@link VotingAlgorithm} implementation associated with the specified {@link VotingStrategy}.
+     *
+     * @param votingStrategy The voting strategy
+     *
+     * @return The voting algorithm instance
+     */
+    VotingAlgorithm getVotingAlgorithm(VotingStrategy votingStrategy);
+
+    /**
+     * Sets the {@link VotingAlgorithm} implementation to be used every time the given {@link VotingStrategy} is applied.
+     *
+     * @param votingStrategy The voting strategy
+     * @param votingAlgorithm The voting algorithm to apply when calling to {@link #checkPermission(Permission, User, VotingStrategy)}
+     * with the proper voting strategy.
+     */
+    void setVotingAlgorithm(VotingStrategy votingStrategy, VotingAlgorithm votingAlgorithm);
+
+    /**
      * Creates a permission instance.
      *
      * @param name The name of the permission to create
@@ -81,6 +115,9 @@ public interface PermissionManager {
     /**
      * Check if the given permission is granted to the specified user.
      *
+     * <p>NOTE: If voting is required (users with more than one role and/or group assigned) then
+     * the default voting strategy is used</p>
+     *
      * @param permission The permission to check
      * @param user The user instance
      * @return The authorization result: GRANTED / DENIED / ABSTAIN
@@ -88,4 +125,17 @@ public interface PermissionManager {
      * @see AuthorizationResult
      */
     AuthorizationResult checkPermission(Permission permission, User user);
+
+    /**
+     * Check if the given permission is granted to the specified user.
+     *
+     * @param permission The permission to check
+     * @param user The user instance
+     * @param votingStrategy The voting strategy to use when voting is required
+     * (users with more than one role and/or group assigned).
+     * If null then the default voting strategy is used.
+     *
+     * @return The authorization result: GRANTED / DENIED / ABSTAIN
+     */
+    AuthorizationResult checkPermission(Permission permission, User user, VotingStrategy votingStrategy);
 }

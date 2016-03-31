@@ -46,7 +46,7 @@ public abstract class AbstractWorkbenchEditorActivity extends AbstractWorkbenchA
     }
 
     @Override
-    public ResourceType getType() {
+    public ResourceType getResourceType() {
         return ActivityType.EDITOR;
     }
 

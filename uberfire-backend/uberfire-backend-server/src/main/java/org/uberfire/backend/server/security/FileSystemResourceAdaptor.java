@@ -46,7 +46,7 @@ public class FileSystemResourceAdaptor implements RuntimeContentResource {
     }
 
     @Override
-    public ResourceType getType() {
+    public ResourceType getResourceType() {
         return () -> "filesystem";
     }
 }

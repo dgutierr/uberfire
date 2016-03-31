@@ -35,7 +35,7 @@ import org.uberfire.security.ResourceType;
 public abstract class AbstractWorkbenchScreenActivity extends AbstractWorkbenchActivity implements WorkbenchScreenActivity {
 
     @Override
-    public ResourceType getType() {
+    public ResourceType getResourceType() {
         return ActivityType.SCREEN;
     }
 
