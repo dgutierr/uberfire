@@ -57,7 +57,7 @@ public class WorkbenchControllerTest {
 
     @Test
     public void testPerspectiveEditAction() {
-        workbenchController.check(perspectiveActivity).edit()
+        workbenchController.perspective(perspectiveActivity).edit()
                 .granted(onGranted)
                 .denied(onDenied);
 
@@ -66,7 +66,7 @@ public class WorkbenchControllerTest {
 
     @Test
     public void testPerspectiveDeleteAction() {
-        workbenchController.check(perspectiveActivity).delete()
+        workbenchController.perspective(perspectiveActivity).delete()
                 .granted(onGranted)
                 .denied(onDenied);
 

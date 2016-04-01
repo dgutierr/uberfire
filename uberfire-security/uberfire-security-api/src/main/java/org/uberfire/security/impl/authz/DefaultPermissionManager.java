@@ -27,6 +27,7 @@ import org.jboss.errai.security.shared.api.Role;
 import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceAction;
+import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.AuthorizationPolicy;
 import org.uberfire.security.authz.AuthorizationResult;
 import org.uberfire.security.authz.Permission;
@@ -115,6 +116,12 @@ public class DefaultPermissionManager implements PermissionManager {
         }
         // NO => just check the resource identifier
         return createPermission(resource.getIdentifier(), granted);
+    }
+
+    @Override
+    public Permission createPermission(ResourceType resourceType, ResourceAction action, boolean granted) {
+        PermissionType permissionType = permissionTypeRegistry.resolve(resourceType.getName());
+        return permissionType.createPermission(resourceType, action, granted);
     }
 
     @Override

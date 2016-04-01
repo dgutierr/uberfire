@@ -17,6 +17,7 @@ package org.uberfire.security.authz;
 
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceAction;
+import org.uberfire.security.ResourceType;
 
 /**
  * A PermissionType provides factory services for the creation of permission instances
@@ -47,6 +48,18 @@ public interface PermissionType {
      * @return A permission instance
      */
     Permission createPermission(String name, boolean granted);
+
+    /**
+     * Creates a permission instance representing a "global" action that can be applied to any resource instance
+     * (for instance, "edit an invoice") or an action that is not related to any specific instance (for instance,
+     * "create a new invoice")
+     *
+     * @param resourceType The resource type
+     * @param action The action to check. If null then an "access" permission is created.
+     * The term access refers to the ability to reach, read, view ... the resource, depending on the resource type.
+     * @return A permission instance
+     */
+    Permission createPermission(ResourceType resourceType, ResourceAction action, boolean granted);
 
     /**
      * Creates a permission instance representing an action on a given resource..

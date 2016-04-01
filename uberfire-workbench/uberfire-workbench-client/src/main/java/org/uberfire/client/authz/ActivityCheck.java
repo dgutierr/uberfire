@@ -19,21 +19,24 @@ package org.uberfire.client.authz;
 import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.client.mvp.Activity;
 import org.uberfire.security.Resource;
+import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.AuthorizationManager;
-import org.uberfire.security.authz.AuthorizationCheck;
-import org.uberfire.security.authz.VotingStrategy;
 import org.uberfire.security.impl.authz.ResourceCheck;
 
 /**
  * A check executed over an {@link Activity} instance.
  */
-public class ActivityCheck extends ResourceCheck {
+public class ActivityCheck<C extends ActivityCheck> extends ResourceCheck<C> {
 
-    public ActivityCheck(AuthorizationManager authorizationManager, Resource resource, User user, VotingStrategy votingStrategy) {
-        super(authorizationManager, resource, user, votingStrategy);
+    public ActivityCheck(AuthorizationManager authorizationManager, Resource resource, User user) {
+        super(authorizationManager, resource, user);
     }
 
-    public AuthorizationCheck view() {
+    public ActivityCheck(AuthorizationManager authorizationManager, ResourceType resourceType, User user) {
+        super(authorizationManager, resourceType, user);
+    }
+
+    public ActivityCheck view() {
         return super.check(ActivityAction.VIEW);
     }
 }

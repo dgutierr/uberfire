@@ -23,21 +23,21 @@ import org.uberfire.mvp.Command;
  *
  * <p>(See the {@link AuthorizationManager} {@code check} methods)</p>
  */
-public interface AuthorizationCheck {
+public interface AuthorizationCheck<C extends AuthorizationCheck> {
 
     /**
      * Specifies the command instance to execute in case the check result is granted.
      *
      * @param onGranted The command to execute
      */
-    AuthorizationCheck granted(Command onGranted);
+    C granted(Command onGranted);
 
     /**
      * Specifies the command instance to execute in case the check result is denied.
      *
      * @param onDenied The command to execute
      */
-    AuthorizationCheck denied(Command onDenied);
+    C denied(Command onDenied);
 
     /**
      * Get the check result value

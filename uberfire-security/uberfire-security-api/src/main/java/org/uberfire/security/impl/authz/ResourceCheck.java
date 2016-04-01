@@ -20,6 +20,7 @@ import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.mvp.Command;
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceAction;
+import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.AuthorizationManager;
 import org.uberfire.security.authz.AuthorizationCheck;
 import org.uberfire.security.authz.VotingStrategy;
@@ -27,13 +28,33 @@ import org.uberfire.security.authz.VotingStrategy;
 /**
  * A check executed over a {@link Resource} instance.
  */
-public class ResourceCheck implements AuthorizationCheck {
+public class ResourceCheck<C extends ResourceCheck> implements AuthorizationCheck<C> {
 
     protected AuthorizationManager authorizationManager;
     protected Resource resource;
+    protected ResourceType resourceType;
     protected User user;
     protected VotingStrategy votingStrategy;
     protected Boolean result = null;
+
+    public ResourceCheck(AuthorizationManager authorizationManager, Resource resource, User user) {
+        this.authorizationManager = authorizationManager;
+        this.resource = resource;
+        this.user = user;
+    }
+
+    public ResourceCheck(AuthorizationManager authorizationManager, ResourceType resourceType, User user) {
+        this.authorizationManager = authorizationManager;
+        this.resourceType = resourceType;
+        this.user = user;
+    }
+
+    public ResourceCheck(AuthorizationManager authorizationManager, ResourceType resourceType, User user, VotingStrategy votingStrategy) {
+        this.authorizationManager = authorizationManager;
+        this.resourceType = resourceType;
+        this.user = user;
+        this.votingStrategy = votingStrategy;
+    }
 
     public ResourceCheck(AuthorizationManager authorizationManager, Resource resource, User user, VotingStrategy votingStrategy) {
         this.authorizationManager = authorizationManager;
@@ -42,29 +63,37 @@ public class ResourceCheck implements AuthorizationCheck {
         this.votingStrategy = votingStrategy;
     }
 
-    protected ResourceCheck check(ResourceAction action) {
+    protected C check(ResourceAction action) {
         if (votingStrategy == null) {
-            result = authorizationManager.authorize(resource, action, user);
+            if (resource == null) {
+                result = authorizationManager.authorize(resourceType, action, user);
+            } else {
+                result = authorizationManager.authorize(resource, action, user);
+            }
         } else {
-            result = authorizationManager.authorize(resource, action, user, votingStrategy);
+            if (resource == null) {
+                result = authorizationManager.authorize(resourceType, action, user, votingStrategy);
+            } else {
+                result = authorizationManager.authorize(resource, action, user, votingStrategy);
+            }
         }
-        return this;
+        return (C) this;
     }
 
     @Override
-    public AuthorizationCheck granted(Command onGranted) {
+    public C granted(Command onGranted) {
         if (result()) {
             onGranted.execute();
         }
-        return this;
+        return (C) this;
     }
 
     @Override
-    public AuthorizationCheck denied(Command onDenied) {
+    public C denied(Command onDenied) {
         if (!result()) {
             onDenied.execute();
         }
-        return this;
+        return (C) this;
     }
 
     @Override

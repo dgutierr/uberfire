@@ -80,9 +80,18 @@ public class PermissionManagerTest {
 
 
     @Test
+    public void testCreateGlobalPermissions() {
+        ResourceType type = () -> "type";
+        Permission p = permissionManager.createPermission(type, null, true);
+        assertEquals(p.getName(), "type.view");
+
+        p = permissionManager.createPermission(type, () -> "edit", true);
+        assertEquals(p.getName(), "type.edit");
+    }
+
+    @Test
     public void testCreateTypedPermissions() {
-        ResourceType type = mock(ResourceType.class);
-        when(type.getName()).thenReturn("type");
+        ResourceType type = () -> "type";
         ResourceRef r = new ResourceRef("r1", type, null);
         Permission p = permissionManager.createPermission(r, null, true);
         assertEquals(p.getName(), "type.view.r1");

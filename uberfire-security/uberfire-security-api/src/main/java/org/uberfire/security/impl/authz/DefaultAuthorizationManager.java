@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceAction;
+import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.AuthorizationManager;
 import org.uberfire.security.authz.AuthorizationResult;
 import org.uberfire.security.authz.AuthorizationCheck;
@@ -52,6 +53,11 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
     @Override
     public boolean authorize(Resource resource, ResourceAction action, User user) {
         return authorize(resource, action, user, null);
+    }
+
+    @Override
+    public boolean authorize(ResourceType resourceType, ResourceAction action, User user) {
+        return authorize(resourceType, action, user, null);
     }
 
     @Override
@@ -86,6 +92,13 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 
         // Ask the permission manager about the given action
         Permission p = permissionManager.createPermission(resource, action, true);
+        return authorize(p, user, votingStrategy);
+    }
+
+    @Override
+    public boolean authorize(ResourceType resourceType, ResourceAction action, User user, VotingStrategy votingStrategy) {
+        // Ask the permission manager about the given action
+        Permission p = permissionManager.createPermission(resourceType, action, true);
         return authorize(p, user, votingStrategy);
     }
 
