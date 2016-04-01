@@ -18,6 +18,7 @@ package org.uberfire.security.authz;
 import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceAction;
+import org.uberfire.security.ResourceType;
 import org.uberfire.security.impl.authz.AuthorizationPolicyBuilder;
 
 /**
@@ -111,6 +112,16 @@ public interface PermissionManager {
      * @return A permission instance
      */
     Permission createPermission(Resource resource, ResourceAction action, boolean granted);
+
+    /**
+     * Creates a permission instance representing an action on a given resource..
+     *
+     * @param resourceType The resource type
+     * @param action The action to check. If null then an "access" permission is created.
+     * The term access refers to the ability to reach, read, view ... the resource, depending on the resource type.
+     * @return A permission instance
+     */
+    Permission createPermission(ResourceType resourceType, ResourceAction action, boolean granted);
 
     /**
      * Check if the given permission is granted to the specified user.

@@ -30,7 +30,7 @@ import org.uberfire.security.authz.VotingStrategy;
  *   Button deleteButton;
  *   PerspectiveActivity perspective1;
  *
- *   check(perspective1).delete()
+ *   perspective(perspective1).delete()
  *     .denied(() -> deleteButton.setVisible(false))
  * }</pre>
 
@@ -38,30 +38,23 @@ import org.uberfire.security.authz.VotingStrategy;
 public class WorkbenchControllerHelper {
 
     /**
-     * See {@link WorkbenchController#check(Activity, VotingStrategy)}
+     * See {@link WorkbenchController#perspective(PerspectiveActivity)}
      */
-    public static ActivityCheck check(Activity activity, VotingStrategy votingStrategy) {
-        return DefaultWorkbenchController.get().check(activity, votingStrategy);
+    public static PerspectiveCheck perspectives() {
+        return DefaultWorkbenchController.get().perspectives();
     }
 
     /**
-     * See {@link WorkbenchController#check(PerspectiveActivity)}
+     * See {@link WorkbenchController#perspective(PerspectiveActivity)}
      */
-    public static PerspectiveCheck check(PerspectiveActivity perspective) {
-        return DefaultWorkbenchController.get().check(perspective);
+    public static PerspectiveCheck perspective(PerspectiveActivity perspective) {
+        return DefaultWorkbenchController.get().perspective(perspective);
     }
 
     /**
-     * See {@link WorkbenchController#check(Activity)}
+     * See {@link WorkbenchController#activity(Activity)}
      */
-    public static ActivityCheck check(Activity activity) {
-        return DefaultWorkbenchController.get().check(activity);
-    }
-
-    /**
-     * See {@link WorkbenchController#check(PerspectiveActivity, VotingStrategy)}
-     */
-    public static PerspectiveCheck check(PerspectiveActivity perspective, VotingStrategy votingStrategy) {
-        return DefaultWorkbenchController.get().check(perspective, votingStrategy);
+    public static ActivityCheck activity(Activity activity) {
+        return DefaultWorkbenchController.get().activity(activity);
     }
 }

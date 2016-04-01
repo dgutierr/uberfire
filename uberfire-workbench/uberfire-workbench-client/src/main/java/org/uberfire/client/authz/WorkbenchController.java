@@ -32,7 +32,7 @@ import org.uberfire.security.authz.VotingStrategy;
  *   WorkbenchController workbenchController;
  *   PerspectiveActivity perspective1;
  *
- *   workbenchController.check(perspective1).delete()
+ *   workbenchController.perspective(perspective1).delete()
  *     .granted(() -> deleteButton.setEnabled(true))
  *     .denied(() -> deleteButton.setEnabled(false))
  * }</pre>
@@ -46,7 +46,14 @@ public interface WorkbenchController {
      *
      * @return A handler for dealing with activity the check API.
      */
-    ActivityCheck check(Activity activity, VotingStrategy votingStrategy);
+    ActivityCheck activity(Activity activity);
+
+    /**
+     * Creates a brand new instance for checking global perspective actions actions.
+     *
+     * @return A handler for dealing with the perspective check API.
+     */
+    PerspectiveCheck perspectives();
 
     /**
      * Creates a brand new instance for checking actions over {@link PerspectiveActivity} instances.
@@ -55,17 +62,5 @@ public interface WorkbenchController {
      *
      * @return A handler for dealing with the perspective check API.
      */
-    PerspectiveCheck check(PerspectiveActivity perspective, VotingStrategy votingStrategy);
-
-    /**
-     * It redirects to {@link #check(Activity, VotingStrategy)}
-     * using the default voting strategy defined at {@link PermissionManager}.
-     */
-    ActivityCheck check(Activity activity);
-
-    /**
-     * It redirects to {@link #check(PerspectiveActivity, VotingStrategy)}
-     * using the default voting strategy defined at {@link PermissionManager}.
-     */
-    PerspectiveCheck check(PerspectiveActivity perspective);
+    PerspectiveCheck perspective(PerspectiveActivity perspective);
 }

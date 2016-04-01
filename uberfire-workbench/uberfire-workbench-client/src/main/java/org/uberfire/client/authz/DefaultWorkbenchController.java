@@ -24,7 +24,7 @@ import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.client.mvp.Activity;
 import org.uberfire.client.mvp.PerspectiveActivity;
 import org.uberfire.security.authz.AuthorizationManager;
-import org.uberfire.security.authz.VotingStrategy;
+import org.uberfire.workbench.model.ActivityType;
 
 @ApplicationScoped
 public class DefaultWorkbenchController implements WorkbenchController {
@@ -43,22 +43,17 @@ public class DefaultWorkbenchController implements WorkbenchController {
     }
 
     @Override
-    public ActivityCheck check(Activity activity) {
-        return check(activity, null);
+    public PerspectiveCheck perspectives() {
+        return new PerspectiveCheck(authorizationManager, ActivityType.PERSPECTIVE, user);
     }
 
     @Override
-    public PerspectiveCheck check(PerspectiveActivity perspective) {
-        return check(perspective, null);
+    public PerspectiveCheck perspective(PerspectiveActivity perspective) {
+        return new PerspectiveCheck(authorizationManager, perspective, user);
     }
 
     @Override
-    public ActivityCheck check(Activity activity, VotingStrategy votingStrategy) {
-        return new ActivityCheck(authorizationManager, activity, user, votingStrategy);
-    }
-
-    @Override
-    public PerspectiveCheck check(PerspectiveActivity perspective, VotingStrategy votingStrategy) {
-        return new PerspectiveCheck(authorizationManager, perspective, user, votingStrategy);
+    public ActivityCheck activity(Activity activity) {
+        return new ActivityCheck(authorizationManager, activity, user);
     }
 }

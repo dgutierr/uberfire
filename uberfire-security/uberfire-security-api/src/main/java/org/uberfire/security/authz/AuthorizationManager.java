@@ -19,6 +19,7 @@ package org.uberfire.security.authz;
 import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceAction;
+import org.uberfire.security.ResourceType;
 
 /**
  * Main entry interface for querying the authorization management subsystem about
@@ -60,6 +61,20 @@ public interface AuthorizationManager {
      * @return true if the action is granted, false otherwise.
      */
     boolean authorize(Resource resource, ResourceAction action, User user, VotingStrategy votingStrategy);
+
+    /**
+     * Check if the given action can be performed over the specified resource or any of its
+     * dependent resource references (see {@link Resource#getDependencies}).
+     *
+     * @param resourceType The resource type to check
+     * @param action The action to check.
+     * @param user The user instance
+     * @param votingStrategy The voting strategy to use when voting is required
+     * (users with more than one role and/or group assigned).
+     *
+     * @return true if the action is granted, false otherwise.
+     */
+    boolean authorize(ResourceType resourceType, ResourceAction action, User user, VotingStrategy votingStrategy);
 
     /**
      * Check of the given permission has been granted to the user.
@@ -145,6 +160,12 @@ public interface AuthorizationManager {
      * using the default voting strategy defined at {@link PermissionManager}.
      */
     boolean authorize(Resource resource, ResourceAction action, User user);
+
+    /**
+     * It redirects to {@link #authorize(ResourceType, ResourceAction, User, VotingStrategy)}
+     * using the default voting strategy defined at {@link PermissionManager}.
+     */
+    boolean authorize(ResourceType resourceType, ResourceAction action, User user);
 
     /**
      * It redirects to {@link #authorize(String, User, VotingStrategy)}

@@ -19,24 +19,27 @@ package org.uberfire.client.authz;
 import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.client.mvp.PerspectiveActivity;
 import org.uberfire.security.Resource;
+import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.AuthorizationManager;
-import org.uberfire.security.authz.AuthorizationCheck;
-import org.uberfire.security.authz.VotingStrategy;
 
 /**
  * A check executed over an {@link PerspectiveActivity} instance.
  */
-public class PerspectiveCheck extends ActivityCheck {
+public class PerspectiveCheck extends ActivityCheck<PerspectiveCheck> {
 
-    public PerspectiveCheck(AuthorizationManager authorizationManager, Resource resource, User user, VotingStrategy votingStrategy) {
-        super(authorizationManager, resource, user, votingStrategy);
+    public PerspectiveCheck(AuthorizationManager authorizationManager, Resource resource, User user) {
+        super(authorizationManager, resource, user);
     }
 
-    public AuthorizationCheck edit() {
+    public PerspectiveCheck(AuthorizationManager authorizationManager, ResourceType resourceType, User user) {
+        super(authorizationManager, resourceType, user);
+    }
+
+    public PerspectiveCheck edit() {
         return super.check(PerspectiveAction.EDIT);
     }
 
-    public AuthorizationCheck delete() {
+    public PerspectiveCheck delete() {
         return super.check(PerspectiveAction.DELETE);
     }
 }
