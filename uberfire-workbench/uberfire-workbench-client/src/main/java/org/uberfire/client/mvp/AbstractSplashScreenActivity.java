@@ -19,7 +19,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.uberfire.client.annotations.WorkbenchSplashScreen;
-import org.uberfire.workbench.model.ActivityType;
+import org.uberfire.workbench.model.ActivityResourceType;
 import org.uberfire.client.workbench.WorkbenchServicesProxy;
 import org.uberfire.client.workbench.widgets.splash.SplashView;
 import org.uberfire.mvp.ParameterizedCommand;
@@ -54,7 +54,7 @@ public abstract class AbstractSplashScreenActivity extends AbstractActivity impl
 
     @Override
     public ResourceType getResourceType() {
-        return ActivityType.SPLASH;
+        return ActivityResourceType.SPLASH;
     }
 
     @PostConstruct

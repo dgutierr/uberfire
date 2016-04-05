@@ -109,8 +109,8 @@ public class DefaultPermissionManager implements PermissionManager {
 
         // Does the resource have a type?
 
-        // YES => check the resource action f.i: "project.view.myprojectid"
-        if (resource.getResourceType() != null) {
+        // YES => check the resource action f.i: "project.read.myprojectid"
+        if (resource.getResourceType() != null && !resource.getResourceType().equals(ResourceType.UNKNOWN)) {
             PermissionType permissionType = permissionTypeRegistry.resolve(resource.getResourceType().getName());
             return permissionType.createPermission(resource, action, granted);
         }

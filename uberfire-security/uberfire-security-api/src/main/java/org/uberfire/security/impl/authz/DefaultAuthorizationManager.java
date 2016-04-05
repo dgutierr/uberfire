@@ -72,7 +72,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 
         // A resource may depend on others
         List<Resource> deps = resource.getDependencies();
-        if (deps != null) {
+        if (deps != null && !deps.isEmpty()) {
 
             // One dep is accessible
             for (Resource dep : deps) {
@@ -81,7 +81,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
                     return true;
                 }
             }
-            // No deps found or all deps denied
+            // All deps denied
             return false;
         }
         // Unknown resource with no deps

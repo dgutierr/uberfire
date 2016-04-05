@@ -49,14 +49,14 @@ public class DotNamedPermissionType implements PermissionType {
 
     @Override
     public Permission createPermission(ResourceType resourceType, ResourceAction action, boolean granted) {
-        ResourceAction _action = action != null ? action : ResourceAction.VIEW;
+        ResourceAction _action = action != null ? action : ResourceAction.READ;
         String name = buildPermissionName(resourceType, _action.getName().toLowerCase(), null);
         return createPermission(name, granted);
     }
 
     @Override
     public Permission createPermission(Resource resource, ResourceAction action, boolean granted) {
-        ResourceAction _action = action != null ? action : ResourceAction.VIEW;
+        ResourceAction _action = action != null ? action : ResourceAction.READ;
         ResourceType type = resource != null ? resource.getResourceType() : null;
         String id = resource != null ? resource.getIdentifier() : null;
         String name = buildPermissionName(type, _action.getName().toLowerCase(), id);
@@ -65,7 +65,7 @@ public class DotNamedPermissionType implements PermissionType {
 
     protected String buildPermissionName(ResourceType type, String action, String resourceId) {
         String name = "";
-        if (type != null) {
+        if (type != null && !type.equals(ResourceType.UNKNOWN)) {
             name += type.getName();
         }
         if (action != null && action.trim().length() > 0) {

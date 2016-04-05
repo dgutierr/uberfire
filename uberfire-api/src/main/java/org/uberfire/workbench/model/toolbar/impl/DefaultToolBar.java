@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.uberfire.security.Resource;
+import org.uberfire.security.ResourceType;
 import org.uberfire.workbench.model.toolbar.ToolBar;
 import org.uberfire.workbench.model.toolbar.ToolBarItem;
 
@@ -45,7 +47,7 @@ public class DefaultToolBar
     }
 
     @Override
-    public String getId() {
+    public String getIdentifier() {
         return id;
     }
 

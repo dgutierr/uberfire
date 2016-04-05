@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import org.uberfire.backend.vfs.ObservablePath;
 import org.uberfire.client.annotations.WorkbenchEditor;
 import org.uberfire.client.annotations.WorkbenchEditor.LockingStrategy;
-import org.uberfire.workbench.model.ActivityType;
+import org.uberfire.workbench.model.ActivityResourceType;
 import org.uberfire.client.mvp.LockTarget.TitleProvider;
 import org.uberfire.mvp.PlaceRequest;
 import org.uberfire.mvp.impl.PathPlaceRequest;
@@ -47,7 +47,7 @@ public abstract class AbstractWorkbenchEditorActivity extends AbstractWorkbenchA
 
     @Override
     public ResourceType getResourceType() {
-        return ActivityType.EDITOR;
+        return ActivityResourceType.EDITOR;
     }
 
     /**

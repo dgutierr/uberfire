@@ -16,27 +16,25 @@
 
 package org.uberfire.security;
 
-import java.security.AccessController;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * A generic interface for modelling resources, like UI assets: perspectives, screens or
- * editors or even backend resources like repositories, projects or data objects.
+ * editors or even backend resources like repositories, projects, data objects, etc...
  */
 public interface Resource {
 
     /**
      * An identifier that is unique among all the resources of the same type (see {@link Resource#getResourceType()}).
      */
-    default String getIdentifier() {
-        return null;
-    }
+    String getIdentifier();
 
     /**
      * Get the resource type classifier
      */
     default ResourceType getResourceType() {
-        return null;
+        return ResourceType.UNKNOWN;
     }
 
     /**
@@ -46,10 +44,8 @@ public interface Resource {
      * the access to all its dependencies is denied, it is denied for this instance as well.</p>
      *
      * @return A list of resources or null if this resource has no dependencies.
-     *
-     * @see AccessController
      */
     default List<Resource> getDependencies() {
-        return null;
+        return Collections.emptyList();
     }
 }

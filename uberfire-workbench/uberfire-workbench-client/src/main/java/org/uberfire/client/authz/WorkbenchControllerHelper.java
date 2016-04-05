@@ -16,9 +16,11 @@
 
 package org.uberfire.client.authz;
 
-import org.uberfire.client.mvp.Activity;
 import org.uberfire.client.mvp.PerspectiveActivity;
-import org.uberfire.security.authz.VotingStrategy;
+import org.uberfire.client.mvp.PopupActivity;
+import org.uberfire.client.mvp.SplashScreenActivity;
+import org.uberfire.client.mvp.WorkbenchEditorActivity;
+import org.uberfire.client.mvp.WorkbenchScreenActivity;
 
 /**
  * A helper class providing static methods on top of the {@link WorkbenchController} functionality.
@@ -33,7 +35,6 @@ import org.uberfire.security.authz.VotingStrategy;
  *   perspective(perspective1).delete()
  *     .denied(() -> deleteButton.setVisible(false))
  * }</pre>
-
  */
 public class WorkbenchControllerHelper {
 
@@ -52,9 +53,58 @@ public class WorkbenchControllerHelper {
     }
 
     /**
-     * See {@link WorkbenchController#activity(Activity)}
+     * See {@link WorkbenchController#screens()}
      */
-    public static ActivityCheck activity(Activity activity) {
-        return DefaultWorkbenchController.get().activity(activity);
+    public static ActivityCheck screens() {
+        return DefaultWorkbenchController.get().screens();
+    }
+
+    /**
+     * See {@link WorkbenchController#popupScreens()}
+     */
+    public static ActivityCheck popupScreens() {
+        return DefaultWorkbenchController.get().popupScreens();
+    }
+
+    /**
+     * See {@link WorkbenchController#splashScreens()}
+     */
+    public static ActivityCheck splashScreens() {
+        return DefaultWorkbenchController.get().splashScreens();
+    }
+
+    /**
+     * See {@link WorkbenchController#editors()}
+     */
+    public static ActivityCheck editors() {
+        return DefaultWorkbenchController.get().editors();
+    }
+
+    /**
+     * See {@link WorkbenchController#screen(WorkbenchScreenActivity)}
+     */
+    public static ActivityCheck screen(WorkbenchScreenActivity screen) {
+        return DefaultWorkbenchController.get().screen(screen);
+    }
+
+    /**
+     * See {@link WorkbenchController#popupScreen(PopupActivity)}
+     */
+    public static ActivityCheck popupScreen(PopupActivity popup) {
+        return DefaultWorkbenchController.get().popupScreen(popup);
+    }
+
+    /**
+     * See {@link WorkbenchController#editor(WorkbenchEditorActivity)}
+     */
+    public static ActivityCheck editor(WorkbenchEditorActivity editor) {
+        return DefaultWorkbenchController.get().editor(editor);
+    }
+
+    /**
+     * See {@link WorkbenchController#splashScreen(SplashScreenActivity)}
+     */
+    public static ActivityCheck splashScreen(SplashScreenActivity splash) {
+        return DefaultWorkbenchController.get().splashScreen(splash);
     }
 }

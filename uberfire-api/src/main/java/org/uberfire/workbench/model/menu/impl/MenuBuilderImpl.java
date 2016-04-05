@@ -18,13 +18,9 @@ package org.uberfire.workbench.model.menu.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 
 import org.uberfire.mvp.Command;
@@ -32,7 +28,8 @@ import org.uberfire.mvp.PlaceRequest;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceRef;
-import org.uberfire.workbench.model.ActivityType;
+import org.uberfire.security.ResourceType;
+import org.uberfire.workbench.model.ActivityResourceType;
 import org.uberfire.workbench.model.menu.EnabledStateChangeListener;
 import org.uberfire.workbench.model.menu.MenuFactory;
 import org.uberfire.workbench.model.menu.MenuGroup;
@@ -108,8 +105,12 @@ public final class MenuBuilderImpl
                     }
 
                     @Override
-                    public List<Resource> getDependencies() {
-                        return menuItems;
+                    public String getIdentifier() {
+                        if ( contributionPoint != null ) {
+                            return getClass().getName() + "#" + contributionPoint + "#" + caption;
+
+                        }
+                        return getClass().getName() + "#" + caption;
                     }
 
                     @Override
@@ -172,7 +173,13 @@ public final class MenuBuilderImpl
 
                     @Override
                     public String getIdentifier() {
-                        return identifier;
+                        if ( identifier != null ) {
+                            return identifier;
+                        }
+                        if ( contributionPoint != null ) {
+                            return getClass().getName() + "#" + contributionPoint + "#" + caption;
+                        }
+                        return getClass().getName() + "#" + caption;
                     }
 
                     @Override
@@ -232,7 +239,7 @@ public final class MenuBuilderImpl
 
                     private final List<EnabledStateChangeListener> enabledStateChangeListeners = new ArrayList<EnabledStateChangeListener>();
                     private boolean isEnabled = true;
-                    private List<Resource> dependencies = Arrays.asList(new ResourceRef(placeRequest.getIdentifier(), ActivityType.PERSPECTIVE, null));
+                    private List<Resource> dependencies = Arrays.asList(new ResourceRef(placeRequest.getIdentifier(), ActivityResourceType.PERSPECTIVE, null));
 
                     @Override
                     public PlaceRequest getPlaceRequest() {
@@ -241,7 +248,13 @@ public final class MenuBuilderImpl
 
                     @Override
                     public String getIdentifier() {
-                        return identifier;
+                        if ( identifier != null ) {
+                            return identifier;
+                        }
+                        if ( contributionPoint != null ) {
+                            return getClass().getName() + "#" + contributionPoint + "#" + caption;
+                        }
+                        return getClass().getName() + "#" + caption;
                     }
 
                     @Override
@@ -304,7 +317,13 @@ public final class MenuBuilderImpl
 
                 @Override
                 public String getIdentifier() {
-                    return identifier;
+                    if ( identifier != null ) {
+                        return identifier;
+                    }
+                    if ( contributionPoint != null ) {
+                        return getClass().getName() + "#" + contributionPoint + "#" + caption;
+                    }
+                    return getClass().getName() + "#" + caption;
                 }
 
                 @Override

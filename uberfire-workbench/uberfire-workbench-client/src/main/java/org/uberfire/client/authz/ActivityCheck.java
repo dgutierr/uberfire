@@ -36,7 +36,7 @@ public class ActivityCheck<C extends ActivityCheck> extends ResourceCheck<C> {
         super(authorizationManager, resourceType, user);
     }
 
-    public ActivityCheck view() {
-        return super.check(ActivityAction.VIEW);
+    public ActivityCheck read() {
+        return super.check(ActivityAction.READ);
     }
 }

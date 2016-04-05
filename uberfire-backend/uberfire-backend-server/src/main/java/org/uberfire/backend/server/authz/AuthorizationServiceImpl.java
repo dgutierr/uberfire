@@ -27,7 +27,7 @@ import org.uberfire.security.authz.AuthorizationPolicy;
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Inject
-    private DefaultSecurityPolicyStorage storage;
+    private DefaultAuthzPolicyStorage storage;
 
     @Override
     public AuthorizationPolicy loadPolicy() {

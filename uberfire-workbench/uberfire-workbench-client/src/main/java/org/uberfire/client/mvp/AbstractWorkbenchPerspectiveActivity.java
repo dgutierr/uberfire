@@ -16,7 +16,7 @@
 package org.uberfire.client.mvp;
 
 import org.uberfire.client.annotations.WorkbenchPerspective;
-import org.uberfire.workbench.model.ActivityType;
+import org.uberfire.workbench.model.ActivityResourceType;
 import org.uberfire.security.ResourceType;
 import org.uberfire.workbench.model.PerspectiveDefinition;
 import org.uberfire.workbench.model.menu.Menus;
@@ -34,7 +34,7 @@ public abstract class AbstractWorkbenchPerspectiveActivity extends AbstractActiv
 
     @Override
     public ResourceType getResourceType() {
-        return ActivityType.PERSPECTIVE;
+        return ActivityResourceType.PERSPECTIVE;
     }
 
     @Override

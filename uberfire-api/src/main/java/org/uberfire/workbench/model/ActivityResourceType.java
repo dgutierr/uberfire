@@ -20,9 +20,8 @@ import org.uberfire.security.ResourceType;
 /**
  * An extension of the {@link ResourceType} interface holding an enumeration with the
  * different activity types subject to authorization management control.
- *
  */
-public enum ActivityType implements ResourceType {
+public enum ActivityResourceType implements ResourceType {
 
     PERSPECTIVE,
     SCREEN,

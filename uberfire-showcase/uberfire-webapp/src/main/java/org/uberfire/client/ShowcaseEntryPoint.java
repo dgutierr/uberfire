@@ -188,7 +188,7 @@ public class ShowcaseEntryPoint {
         final PlaceManager placeManager = IOC.getBeanManager().lookupBean( PlaceManager.class ).getInstance();
         for ( final String name : names ) {
             final MenuItem item = MenuFactory.newSimpleItem( name )
-                    .identifier( "screen.view." + name )
+                    .identifier( "screen.read." + name )
                     .respondsWith( () -> {
                         placeManager.goTo( new DefaultPlaceRequest( name ) );
                     } ).endMenu().build().getItems().get( 0 );

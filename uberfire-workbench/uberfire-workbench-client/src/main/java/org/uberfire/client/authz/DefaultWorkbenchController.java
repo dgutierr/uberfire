@@ -21,10 +21,13 @@ import javax.inject.Inject;
 
 import org.jboss.errai.ioc.client.container.IOC;
 import org.jboss.errai.security.shared.api.identity.User;
-import org.uberfire.client.mvp.Activity;
 import org.uberfire.client.mvp.PerspectiveActivity;
+import org.uberfire.client.mvp.PopupActivity;
+import org.uberfire.client.mvp.SplashScreenActivity;
+import org.uberfire.client.mvp.WorkbenchEditorActivity;
+import org.uberfire.client.mvp.WorkbenchScreenActivity;
 import org.uberfire.security.authz.AuthorizationManager;
-import org.uberfire.workbench.model.ActivityType;
+import org.uberfire.workbench.model.ActivityResourceType;
 
 @ApplicationScoped
 public class DefaultWorkbenchController implements WorkbenchController {
@@ -44,7 +47,27 @@ public class DefaultWorkbenchController implements WorkbenchController {
 
     @Override
     public PerspectiveCheck perspectives() {
-        return new PerspectiveCheck(authorizationManager, ActivityType.PERSPECTIVE, user);
+        return new PerspectiveCheck(authorizationManager, ActivityResourceType.PERSPECTIVE, user);
+    }
+
+    @Override
+    public ActivityCheck screens() {
+        return new PerspectiveCheck(authorizationManager, ActivityResourceType.SCREEN, user);
+    }
+
+    @Override
+    public ActivityCheck popupScreens() {
+        return new PerspectiveCheck(authorizationManager, ActivityResourceType.POPUP, user);
+    }
+
+    @Override
+    public ActivityCheck splashScreens() {
+        return new PerspectiveCheck(authorizationManager, ActivityResourceType.SPLASH, user);
+    }
+
+    @Override
+    public ActivityCheck editors() {
+        return new PerspectiveCheck(authorizationManager, ActivityResourceType.EDITOR, user);
     }
 
     @Override
@@ -53,7 +76,22 @@ public class DefaultWorkbenchController implements WorkbenchController {
     }
 
     @Override
-    public ActivityCheck activity(Activity activity) {
-        return new ActivityCheck(authorizationManager, activity, user);
+    public ActivityCheck screen(WorkbenchScreenActivity screen) {
+        return new PerspectiveCheck(authorizationManager, screen, user);
+    }
+
+    @Override
+    public ActivityCheck popupScreen(PopupActivity popup) {
+        return new PerspectiveCheck(authorizationManager, popup, user);
+    }
+
+    @Override
+    public ActivityCheck editor(WorkbenchEditorActivity editor) {
+        return new PerspectiveCheck(authorizationManager, editor, user);
+    }
+
+    @Override
+    public ActivityCheck splashScreen(SplashScreenActivity splash) {
+        return new PerspectiveCheck(authorizationManager, splash, user);
     }
 }

@@ -36,7 +36,7 @@ import org.uberfire.security.impl.authz.AuthorizationPolicyBuilder;
  *     User user;
  *
  *     public boolean checkPermission() {
- *         Permission permission = permissionManager.createPermission("perspective.view.Home", true);
+ *         Permission permission = permissionManager.createPermission("perspective.read.Home", true);
  *         return permissionManager.checkPermission(permission, user);
  *     }
  * </pre>

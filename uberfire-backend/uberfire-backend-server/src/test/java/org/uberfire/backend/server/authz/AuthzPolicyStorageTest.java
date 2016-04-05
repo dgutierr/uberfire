@@ -15,8 +15,9 @@
  */
 package org.uberfire.backend.server.authz;
 
-import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
@@ -37,13 +38,13 @@ import static org.junit.Assert.*;
 
 public class AuthzPolicyStorageTest {
 
-    DefaultSecurityPolicyStorage authzPolicyStorage;
+    DefaultAuthzPolicyStorage authzPolicyStorage;
 
     @Before
     public void setUp() {
         PermissionTypeRegistry permissionTypeRegistry = new DefaultPermissionTypeRegistry();
         PermissionManager permissionManager = new DefaultPermissionManager(permissionTypeRegistry);
-        authzPolicyStorage = new DefaultSecurityPolicyStorage(permissionManager);
+        authzPolicyStorage = new DefaultAuthzPolicyStorage(permissionManager);
     }
 
     @Test
@@ -66,12 +67,12 @@ public class AuthzPolicyStorageTest {
 
     @Test
     public void testPermissionEntry() {
-        List<String> tokens = authzPolicyStorage.parseKey("role.admin.permission.perspective.view");
+        List<String> tokens = authzPolicyStorage.parseKey("role.admin.permission.perspective.read");
         assertEquals(tokens.size(), 4);
         assertEquals(tokens.get(0), "role");
         assertEquals(tokens.get(1), "admin");
         assertEquals(tokens.get(2), "permission");
-        assertEquals(tokens.get(3), "perspective.view");
+        assertEquals(tokens.get(3), "perspective.read");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -90,23 +91,25 @@ public class AuthzPolicyStorageTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testInvalidPolicy() {
+    public void testInvalidPolicy() throws Exception {
         testPolicyLoad("WEB-INF/classes/invalid/security-policy.properties");
     }
 
     @Test
-    public void testPolicyLoad() {
+    public void testPolicyLoad() throws Exception {
         testPolicyLoad("WEB-INF/classes/security-policy.properties");
     }
 
     @Test
-    public void testPolicyLoad2() {
+    public void testPolicyLoad2() throws Exception {
         testPolicyLoad("WEB-INF/classes/split/security-policy.properties");
     }
 
-    public void testPolicyLoad(String path) {
+    public void testPolicyLoad(String path) throws Exception {
         URL fileURL = Thread.currentThread().getContextClassLoader().getResource(path);
-        AuthorizationPolicy policy = authzPolicyStorage.loadPolicy(new File(fileURL.getPath()).getParentFile());
+        Path policyDir = Paths.get(fileURL.toURI()).getParent();
+
+        AuthorizationPolicy policy = authzPolicyStorage.loadPolicy(policyDir);
 
         Set<Role> roles = policy.getRoles();
         assertEquals(roles.size(), 3);
@@ -118,11 +121,11 @@ public class AuthzPolicyStorageTest {
         assertEquals(policy.getPriority(adminRole), 1);
         assertEquals(permissions.collection().size(), 3);
 
-        Permission permission = permissions.get("perspective.view");
+        Permission permission = permissions.get("perspective.read");
         assertNotNull(permission);
         assertEquals(permission.getResult(), AuthorizationResult.ACCESS_GRANTED);
 
-        permission = permissions.get("perspective.view.SimplePerspective");
+        permission = permissions.get("perspective.read.SimplePerspective");
         assertNotNull(permission);
         assertEquals(permission.getResult(), AuthorizationResult.ACCESS_DENIED);
 
@@ -134,15 +137,15 @@ public class AuthzPolicyStorageTest {
         assertEquals(policy.getPriority(userRole), 2);
         assertEquals(permissions.collection().size(), 4);
 
-        permission = permissions.get("perspective.view");
+        permission = permissions.get("perspective.read");
         assertNotNull(permission);
         assertEquals(permission.getResult(), AuthorizationResult.ACCESS_DENIED);
 
-        permission = permissions.get("perspective.view.HomePerspective");
+        permission = permissions.get("perspective.read.HomePerspective");
         assertNotNull(permission);
         assertEquals(permission.getResult(), AuthorizationResult.ACCESS_GRANTED);
 
-        permission = permissions.get("perspective.view.SimplePerspective");
+        permission = permissions.get("perspective.read.SimplePerspective");
         assertNotNull(permission);
         assertEquals(permission.getResult(), AuthorizationResult.ACCESS_GRANTED);
 
@@ -153,7 +156,7 @@ public class AuthzPolicyStorageTest {
         assertEquals(policy.getPriority(managerRole), 3);
         assertEquals(permissions.collection().size(), 2);
 
-        permission = permissions.get("perspective.view");
+        permission = permissions.get("perspective.read");
         assertNotNull(permission);
         assertEquals(permission.getResult(), AuthorizationResult.ACCESS_GRANTED);
     }
