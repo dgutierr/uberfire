@@ -16,11 +16,11 @@
 
 package org.uberfire.client.authz;
 
-import org.jboss.errai.security.shared.api.identity.User;
-import org.uberfire.client.mvp.Activity;
 import org.uberfire.client.mvp.PerspectiveActivity;
-import org.uberfire.security.authz.PermissionManager;
-import org.uberfire.security.authz.VotingStrategy;
+import org.uberfire.client.mvp.PopupActivity;
+import org.uberfire.client.mvp.SplashScreenActivity;
+import org.uberfire.client.mvp.WorkbenchEditorActivity;
+import org.uberfire.client.mvp.WorkbenchScreenActivity;
 
 /**
  * An interface for checking access to workbench resources (perspectives, screens, editors, ...)
@@ -40,27 +40,58 @@ import org.uberfire.security.authz.VotingStrategy;
 public interface WorkbenchController {
 
     /**
-     * Creates a brand new instance for checking access to any {@link Activity} instance.
-     *
-     * @param activity The Activity instance
-     *
-     * @return A handler for dealing with activity the check API.
+     * Creates a brand new instance for checking global perspective actions.
      */
-    ActivityCheck activity(Activity activity);
+    PerspectiveCheck perspectives();
+
+    /**
+     * Creates a brand new instance for checking global screen actions.
+     */
+    ActivityCheck screens();
+
+    /**
+     * Creates a brand new instance for checking global popup screen actions.
+     *
+     * @return A handler for dealing with the perspective check API.
+     */
+    ActivityCheck popupScreens();
+
+    /**
+     * Creates a brand new instance for checking global splash screen actions.
+     *
+     * @return A handler for dealing with the perspective check API.
+     */
+    ActivityCheck splashScreens();
 
     /**
      * Creates a brand new instance for checking global perspective actions actions.
      *
      * @return A handler for dealing with the perspective check API.
      */
-    PerspectiveCheck perspectives();
+    ActivityCheck editors();
 
     /**
      * Creates a brand new instance for checking actions over {@link PerspectiveActivity} instances.
-     *
-     * @param perspective The PerspectiveActivity instance
-     *
-     * @return A handler for dealing with the perspective check API.
      */
     PerspectiveCheck perspective(PerspectiveActivity perspective);
+
+    /**
+     * Creates a brand new instance for checking actions over {@link WorkbenchScreenActivity} instances.
+     */
+    ActivityCheck screen(WorkbenchScreenActivity screen);
+
+    /**
+     * Creates a brand new instance for checking actions over {@link PopupActivity} instances.
+     */
+    ActivityCheck popupScreen(PopupActivity popup);
+
+    /**
+     * Creates a brand new instance for checking actions over {@link WorkbenchEditorActivity} instances.
+     */
+    ActivityCheck editor(WorkbenchEditorActivity editor);
+
+    /**
+     * Creates a brand new instance for checking actions over {@link SplashScreenActivity} instances.
+     */
+    ActivityCheck splashScreen(SplashScreenActivity splash);
 }

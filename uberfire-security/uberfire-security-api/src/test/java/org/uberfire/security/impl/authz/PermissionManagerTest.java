@@ -48,12 +48,12 @@ public class PermissionManagerTest {
     PermissionManager permissionManager;
     DefaultAuthzResultCache authzResultCache;
     AuthorizationPolicy authorizationPolicy;
-    Permission viewAll = new DotNamedPermission("resource.view", true);
-    Permission denyAll = new DotNamedPermission("resource.view", false);
-    Permission view1 = new DotNamedPermission("resource.view.1", true);
-    Permission noView1 = new DotNamedPermission("resource.view.1", false);
-    Permission view2 = new DotNamedPermission("resource.view.2", true);
-    Permission view12 = new DotNamedPermission("resource.view.1.2", true);
+    Permission viewAll = new DotNamedPermission("resource.read", true);
+    Permission denyAll = new DotNamedPermission("resource.read", false);
+    Permission view1 = new DotNamedPermission("resource.read.1", true);
+    Permission noView1 = new DotNamedPermission("resource.read.1", false);
+    Permission view2 = new DotNamedPermission("resource.read.2", true);
+    Permission view12 = new DotNamedPermission("resource.read.1.2", true);
 
     protected User createUserMock(String... roles) {
         User user = mock(User.class);
@@ -70,11 +70,11 @@ public class PermissionManagerTest {
         permissionManager = new DefaultPermissionManager(new DefaultPermissionTypeRegistry(), authzResultCache);
         permissionManager.setAuthorizationPolicy(
                 authorizationPolicy = spy(permissionManager.newAuthorizationPolicy()
-                .role("viewAll").permission("resource.view", true)
-                .role("noViewAll").permission("resource.view", false)
-                .role("onlyView1", 5).permission("resource.view", false).permission("resource.view.1", true)
-                .role("noView1").permission("resource.view.1", false)
-                .role("onlyView12").permission("resource.view.1.2", true)
+                .role("viewAll").permission("resource.read", true)
+                .role("noViewAll").permission("resource.read", false)
+                .role("onlyView1", 5).permission("resource.read", false).permission("resource.read.1", true)
+                .role("noView1").permission("resource.read.1", false)
+                .role("onlyView12").permission("resource.read.1.2", true)
                 .build()));
     }
 
@@ -83,7 +83,7 @@ public class PermissionManagerTest {
     public void testCreateGlobalPermissions() {
         ResourceType type = () -> "type";
         Permission p = permissionManager.createPermission(type, null, true);
-        assertEquals(p.getName(), "type.view");
+        assertEquals(p.getName(), "type.read");
 
         p = permissionManager.createPermission(type, () -> "edit", true);
         assertEquals(p.getName(), "type.edit");
@@ -94,10 +94,20 @@ public class PermissionManagerTest {
         ResourceType type = () -> "type";
         ResourceRef r = new ResourceRef("r1", type, null);
         Permission p = permissionManager.createPermission(r, null, true);
-        assertEquals(p.getName(), "type.view.r1");
+        assertEquals(p.getName(), "type.read.r1");
 
-        p = permissionManager.createPermission(r, ResourceAction.VIEW, true);
-        assertEquals(p.getName(), "type.view.r1");
+        p = permissionManager.createPermission(r, ResourceAction.READ, true);
+        assertEquals(p.getName(), "type.read.r1");
+    }
+
+    @Test
+    public void testUnknownTypePermissions() {
+        ResourceRef r = new ResourceRef("r1", ResourceType.UNKNOWN, null);
+        Permission p = permissionManager.createPermission(r, null, true);
+        assertEquals(p.getName(), "r1");
+
+        p = permissionManager.createPermission(r, ResourceAction.READ, true);
+        assertEquals(p.getName(), "r1");
     }
 
     @Test
@@ -106,7 +116,7 @@ public class PermissionManagerTest {
         Permission p = permissionManager.createPermission(r, null, true);
         assertEquals(p.getName(), "r1");
 
-        p = permissionManager.createPermission(r, ResourceAction.VIEW, true);
+        p = permissionManager.createPermission(r, ResourceAction.READ, true);
         assertEquals(p.getName(), "r1");
     }
 
@@ -234,9 +244,9 @@ public class PermissionManagerTest {
     public void testPriorityVoting1() {
         User user = createUserMock("role1", "role2", "role3");
         AuthorizationPolicy policy = permissionManager.newAuthorizationPolicy()
-                .role("role1", 1).permission("resource.view", true)
-                .role("role2", 2).permission("resource.view", false)
-                .role("role3", 3).permission("resource.view.1", true)
+                .role("role1", 1).permission("resource.read", true)
+                .role("role2", 2).permission("resource.read", false)
+                .role("role3", 3).permission("resource.read.1", true)
                 .build();
 
         permissionManager.setAuthorizationPolicy(policy);
@@ -253,9 +263,9 @@ public class PermissionManagerTest {
     public void testPriorityVoting2() {
         User user = createUserMock("role1", "role2", "role3");
         AuthorizationPolicy policy = permissionManager.newAuthorizationPolicy()
-                .role("role1", 3).permission("resource.view", true)
-                .role("role2", 2).permission("resource.view", false)
-                .role("role3", 1).permission("resource.view.1", true)
+                .role("role1", 3).permission("resource.read", true)
+                .role("role2", 2).permission("resource.read", false)
+                .role("role3", 1).permission("resource.read.1", true)
                 .build();
 
         permissionManager.setAuthorizationPolicy(policy);
@@ -271,9 +281,9 @@ public class PermissionManagerTest {
     public void testPriorityVoting3() {
         User user = createUserMock("role1", "role2", "role3");
         AuthorizationPolicy policy = permissionManager.newAuthorizationPolicy()
-                .role("role1", 1).permission("resource.view", true)
-                .role("role2", 2).permission("resource.view", false)
-                .role("role3", 1).permission("resource.view.1", true)
+                .role("role1", 1).permission("resource.read", true)
+                .role("role2", 2).permission("resource.read", false)
+                .role("role3", 1).permission("resource.read.1", true)
                 .build();
 
         permissionManager.setAuthorizationPolicy(policy);
@@ -289,9 +299,9 @@ public class PermissionManagerTest {
     @Test
     public void testUnanimousVoting() {
         permissionManager.setAuthorizationPolicy(permissionManager.newAuthorizationPolicy()
-                .role("role1").permission("resource.view", true)
-                .role("role2").permission("resource.view", false)
-                .role("role3").permission("resource.view", true)
+                .role("role1").permission("resource.read", true)
+                .role("role2").permission("resource.read", false)
+                .role("role3").permission("resource.read", true)
                 .build());
 
         User user = createUserMock("role1", "role2", "role3");
@@ -304,9 +314,9 @@ public class PermissionManagerTest {
     @Test
     public void testConsensusVoting() {
         permissionManager.setAuthorizationPolicy(permissionManager.newAuthorizationPolicy()
-                .role("role1").permission("resource.view", true)
-                .role("role2").permission("resource.view", false)
-                .role("role3").permission("resource.view", true)
+                .role("role1").permission("resource.read", true)
+                .role("role2").permission("resource.read", false)
+                .role("role3").permission("resource.read", true)
                 .build());
 
         User user = createUserMock("role1", "role2", "role3");
@@ -319,9 +329,9 @@ public class PermissionManagerTest {
     @Test
     public void testAffirmativeVoting() {
         permissionManager.setAuthorizationPolicy(permissionManager.newAuthorizationPolicy()
-                .role("role1").permission("resource.view", true)
-                .role("role2").permission("resource.view", false)
-                .role("role3").permission("resource.view", true)
+                .role("role1").permission("resource.read", true)
+                .role("role2").permission("resource.read", false)
+                .role("role3").permission("resource.read", true)
                 .build());
 
         User user = createUserMock("role1", "role2", "role3");

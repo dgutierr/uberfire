@@ -15,7 +15,7 @@
  */
 package org.uberfire.client.splash;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
@@ -26,13 +26,12 @@ import org.uberfire.client.screen.JSNativeScreen;
 import org.uberfire.client.workbench.widgets.splash.SplashView;
 import org.uberfire.mvp.ParameterizedCommand;
 import org.uberfire.mvp.PlaceRequest;
+import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceType;
-import org.uberfire.workbench.model.ActivityType;
+import org.uberfire.workbench.model.ActivityResourceType;
 import org.uberfire.workbench.model.SplashScreenFilter;
 
 import javax.enterprise.inject.Alternative;
-
-import static org.uberfire.commons.validation.PortablePreconditions.*;
 
 @Alternative
 public class JSSplashScreenActivity implements SplashScreenActivity {
@@ -86,7 +85,7 @@ public class JSSplashScreenActivity implements SplashScreenActivity {
 
     @Override
     public ResourceType getResourceType() {
-        return ActivityType.SPLASH;
+        return ActivityResourceType.SPLASH;
     }
 
     public void init() {

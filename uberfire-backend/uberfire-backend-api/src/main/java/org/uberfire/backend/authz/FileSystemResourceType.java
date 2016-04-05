@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2016 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.uberfire.workbench.model.toolbar;
+package org.uberfire.backend.authz;
 
-import java.util.List;
-
-import org.uberfire.security.authz.RuntimeFeatureResource;
+import org.uberfire.security.ResourceType;
 
 /**
- * Meta-data for a Workbench Tool Bar including permissions
+ * An extension of the {@link ResourceType} interface holding an enumeration with the
+ * different file system related resource types subject to authorization management control.
  */
-public interface ToolBar
-        extends RuntimeFeatureResource {
+public enum FileSystemResourceType implements ResourceType {
 
-    void addItem( final ToolBarItem item );
+    FILESYSTEM,
+    REPOSITORY;
 
-    List<ToolBarItem> getItems();
-
+    @Override
+    public String getName() {
+        return this.toString().toLowerCase();
+    }
 }

@@ -16,12 +16,13 @@
 
 package org.uberfire.client.perspective;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.uberfire.client.mvp.PerspectiveActivity;
 import org.uberfire.mvp.PlaceRequest;
+import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceType;
-import org.uberfire.workbench.model.ActivityType;
+import org.uberfire.workbench.model.ActivityResourceType;
 import org.uberfire.workbench.model.PerspectiveDefinition;
 import org.uberfire.workbench.model.menu.Menus;
 import org.uberfire.workbench.model.toolbar.ToolBar;
@@ -77,7 +78,7 @@ public class JSWorkbenchPerspectiveActivity implements PerspectiveActivity {
 
     @Override
     public ResourceType getResourceType() {
-        return ActivityType.PERSPECTIVE;
+        return ActivityResourceType.PERSPECTIVE;
     }
 
     @Override

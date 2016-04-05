@@ -111,11 +111,11 @@ public class AuthorizationManagerTest {
         permissionManager.setAuthorizationPolicy(
                 permissionManager.newAuthorizationPolicy()
                         .role("admin")
-                        .permission("perspective.view", true)
-                        .permission("perspective.view.p2", false)
+                        .permission("perspective.read", true)
+                        .permission("perspective.read.p2", false)
                         .permission("custom.resource2", true)
                         .role("manager")
-                        .permission("perspective.view", false)
+                        .permission("perspective.read", false)
                         .build());
     }
 
@@ -201,21 +201,21 @@ public class AuthorizationManagerTest {
     }
 
     @Test
-    public void testEmptyMenuDenied() {
+    public void testEmptyMenuGranted() {
         Resource resource = new ResourceRef(null, null, Arrays.asList());
         boolean result = authorizationManager.authorize(resource, user);
-        assertEquals(result, false);
+        assertEquals(result, true);
     }
 
     @Test
     public void testPermissionGranted() {
-        boolean result = authorizationManager.authorize("perspective.view.p1", user);
+        boolean result = authorizationManager.authorize("perspective.read.p1", user);
         assertEquals(result, true);
     }
 
     @Test
     public void testPermissionDenied() {
-        boolean result = authorizationManager.authorize("perspective.view.p2", user);
+        boolean result = authorizationManager.authorize("perspective.read.p2", user);
         assertEquals(result, false);
     }
 
@@ -255,7 +255,7 @@ public class AuthorizationManagerTest {
 
     @Test
     public void testPermissionCheck() throws Exception {
-        authorizationManager.check("perspective.view.p1", user)
+        authorizationManager.check("perspective.read.p1", user)
                 .granted(onGranted)
                 .denied(onDenied);
         verify(onGranted).execute();

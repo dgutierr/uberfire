@@ -18,8 +18,11 @@ package org.uberfire.workbench.model.toolbar.impl;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.uberfire.mvp.Command;
+import org.uberfire.security.Resource;
+import org.uberfire.security.ResourceType;
 import org.uberfire.workbench.model.toolbar.IconType;
 import org.uberfire.workbench.model.toolbar.ToolBarIcon;
 import org.uberfire.workbench.model.toolbar.ToolBarItem;
@@ -70,6 +73,11 @@ public class DefaultToolBarItem
                 return iconType;
             }
         };
+    }
+
+    @Override
+    public String getIdentifier() {
+        return tooltip;
     }
 
     @Override

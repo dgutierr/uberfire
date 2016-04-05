@@ -33,9 +33,9 @@ import org.uberfire.security.authz.PermissionTypeRegistry;
  *
  * <pre>
  * AuthorizationPolicy policy = permissionManager.newAuthorizationPolicy()
- * .role("role1", 3).permission("resource.view", true)
- * .role("role2", 2).permission("resource.view", false)
- * .role("role3", 1).permission("resource.view.1", true)
+ * .role("role1", 3).permission("resource.read", true)
+ * .role("role2", 2).permission("resource.read", false)
+ * .role("role3", 1).permission("resource.read.1", true)
  * .build();
  * </pre>
  */

@@ -16,7 +16,7 @@
 package org.uberfire.client.mvp;
 
 import org.uberfire.client.annotations.WorkbenchScreen;
-import org.uberfire.workbench.model.ActivityType;
+import org.uberfire.workbench.model.ActivityResourceType;
 import org.uberfire.security.ResourceType;
 
 /**
@@ -36,7 +36,7 @@ public abstract class AbstractWorkbenchScreenActivity extends AbstractWorkbenchA
 
     @Override
     public ResourceType getResourceType() {
-        return ActivityType.SCREEN;
+        return ActivityResourceType.SCREEN;
     }
 
     /**

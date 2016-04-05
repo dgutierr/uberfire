@@ -99,7 +99,7 @@ public class ResourceCheck<C extends ResourceCheck> implements AuthorizationChec
     @Override
     public boolean result() {
         if (result == null) {
-            check(ResourceAction.VIEW);
+            check(ResourceAction.READ);
         }
         return result;
     }

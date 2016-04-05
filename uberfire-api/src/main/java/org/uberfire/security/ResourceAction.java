@@ -26,10 +26,10 @@ package org.uberfire.security;
 public interface ResourceAction {
 
     /**
-     * The view action is common to all resource types.
+     * The read action is common to all resource types.
      * <p>Basically, it refers to the ability to access (view, read, ...) a resource</p>
      */
-    ResourceAction VIEW = () -> "view";
+    ResourceAction READ = () -> "read";
 
     /**
      * An string representation of the action.

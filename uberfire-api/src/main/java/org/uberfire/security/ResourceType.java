@@ -22,6 +22,11 @@ package org.uberfire.security;
 public interface ResourceType {
 
     /**
+     * Resource type declaration for those resources who do not declare a type.
+     */
+    ResourceType UNKNOWN = () -> "unknown";
+
+    /**
      * An string representation of this type instance
      */
     String getName();
