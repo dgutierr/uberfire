@@ -24,6 +24,7 @@ import org.jboss.errai.ioc.client.api.EntryPoint;
 import org.uberfire.backend.authz.AuthorizationService;
 import org.uberfire.security.authz.AuthorizationPolicy;
 import org.uberfire.security.authz.PermissionManager;
+import org.uberfire.security.client.authz.AuthorizationManagerHelper;
 
 @EntryPoint
 public class SecurityEntryPoint {
