@@ -40,7 +40,7 @@ public enum VotingStrategy {
     UNANIMOUS,
 
     /**
-     * It is based on role/group priorities. The most priority result wins.
+     * It is based on role/group priorities. The highest priority result wins.
      */
     PRIORITY;
 }

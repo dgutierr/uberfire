@@ -21,12 +21,12 @@ import org.uberfire.client.mvp.Activity;
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.AuthorizationManager;
-import org.uberfire.security.impl.authz.ResourceCheck;
+import org.uberfire.security.impl.authz.ResourceCheckImpl;
 
 /**
  * A check executed over an {@link Activity} instance.
  */
-public class ActivityCheck<C extends ActivityCheck> extends ResourceCheck<C> {
+public class ActivityCheck<C extends ActivityCheck> extends ResourceCheckImpl<C> {
 
     public ActivityCheck(AuthorizationManager authorizationManager, Resource resource, User user) {
         super(authorizationManager, resource, user);
@@ -37,6 +37,6 @@ public class ActivityCheck<C extends ActivityCheck> extends ResourceCheck<C> {
     }
 
     public ActivityCheck read() {
-        return super.check(ActivityAction.READ);
+        return super.action(ActivityAction.READ);
     }
 }

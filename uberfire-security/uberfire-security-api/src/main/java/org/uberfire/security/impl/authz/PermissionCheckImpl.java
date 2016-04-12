@@ -18,17 +18,17 @@ package org.uberfire.security.impl.authz;
 
 import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.mvp.Command;
-import org.uberfire.security.Resource;
 import org.uberfire.security.authz.AuthorizationCheck;
 import org.uberfire.security.authz.AuthorizationResult;
 import org.uberfire.security.authz.Permission;
+import org.uberfire.security.authz.PermissionCheck;
 import org.uberfire.security.authz.PermissionManager;
 import org.uberfire.security.authz.VotingStrategy;
 
 /**
  * A check executed over a {@link Permission} instance.
  */
-public class PermissionCheck implements AuthorizationCheck {
+public class PermissionCheckImpl implements PermissionCheck {
 
     protected PermissionManager permissionManager;
     protected String permission;
@@ -36,18 +36,17 @@ public class PermissionCheck implements AuthorizationCheck {
     protected VotingStrategy votingStrategy;
     protected Boolean result = null;
 
-    public PermissionCheck(PermissionManager permissionManager, String permission, User user, VotingStrategy votingStrategy) {
+    public PermissionCheckImpl(PermissionManager permissionManager, String permission, User user, VotingStrategy votingStrategy) {
         this.permissionManager = permissionManager;
         this.permission = permission;
         this.user = user;
         this.votingStrategy = votingStrategy;
     }
 
-    protected PermissionCheck check() {
+    protected void check() {
         Permission p = permissionManager.createPermission(permission, true);
         AuthorizationResult authz = permissionManager.checkPermission(p, user, votingStrategy);
         result = !AuthorizationResult.ACCESS_DENIED.equals(authz);
-        return this;
     }
 
     @Override

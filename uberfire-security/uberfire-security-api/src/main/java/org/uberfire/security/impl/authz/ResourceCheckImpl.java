@@ -23,47 +23,46 @@ import org.uberfire.security.ResourceAction;
 import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.AuthorizationManager;
 import org.uberfire.security.authz.AuthorizationCheck;
+import org.uberfire.security.authz.ResourceCheck;
 import org.uberfire.security.authz.VotingStrategy;
 
-/**
- * A check executed over a {@link Resource} instance.
- */
-public class ResourceCheck<C extends ResourceCheck> implements AuthorizationCheck<C> {
+public class ResourceCheckImpl<C extends ResourceCheckImpl> implements ResourceCheck<C> {
 
     protected AuthorizationManager authorizationManager;
     protected Resource resource;
+    protected ResourceAction resourceAction = ResourceAction.READ;
     protected ResourceType resourceType;
     protected User user;
     protected VotingStrategy votingStrategy;
     protected Boolean result = null;
 
-    public ResourceCheck(AuthorizationManager authorizationManager, Resource resource, User user) {
+    public ResourceCheckImpl(AuthorizationManager authorizationManager, Resource resource, User user) {
         this.authorizationManager = authorizationManager;
         this.resource = resource;
         this.user = user;
     }
 
-    public ResourceCheck(AuthorizationManager authorizationManager, ResourceType resourceType, User user) {
+    public ResourceCheckImpl(AuthorizationManager authorizationManager, ResourceType resourceType, User user) {
         this.authorizationManager = authorizationManager;
         this.resourceType = resourceType;
         this.user = user;
     }
 
-    public ResourceCheck(AuthorizationManager authorizationManager, ResourceType resourceType, User user, VotingStrategy votingStrategy) {
-        this.authorizationManager = authorizationManager;
-        this.resourceType = resourceType;
-        this.user = user;
-        this.votingStrategy = votingStrategy;
-    }
-
-    public ResourceCheck(AuthorizationManager authorizationManager, Resource resource, User user, VotingStrategy votingStrategy) {
+    public ResourceCheckImpl(AuthorizationManager authorizationManager, Resource resource, User user, VotingStrategy votingStrategy) {
         this.authorizationManager = authorizationManager;
         this.resource = resource;
         this.user = user;
         this.votingStrategy = votingStrategy;
     }
 
-    protected C check(ResourceAction action) {
+    public ResourceCheckImpl(AuthorizationManager authorizationManager, ResourceType resourceType, User user, VotingStrategy votingStrategy) {
+        this.authorizationManager = authorizationManager;
+        this.resourceType = resourceType;
+        this.user = user;
+        this.votingStrategy = votingStrategy;
+    }
+
+    protected void check(ResourceAction action) {
         if (votingStrategy == null) {
             if (resource == null) {
                 result = authorizationManager.authorize(resourceType, action, user);
@@ -77,6 +76,11 @@ public class ResourceCheck<C extends ResourceCheck> implements AuthorizationChec
                 result = authorizationManager.authorize(resource, action, user, votingStrategy);
             }
         }
+    }
+
+    @Override
+    public C action(ResourceAction action) {
+        resourceAction = action;
         return (C) this;
     }
 
@@ -99,7 +103,7 @@ public class ResourceCheck<C extends ResourceCheck> implements AuthorizationChec
     @Override
     public boolean result() {
         if (result == null) {
-            check(ResourceAction.READ);
+            check(resourceAction);
         }
         return result;
     }

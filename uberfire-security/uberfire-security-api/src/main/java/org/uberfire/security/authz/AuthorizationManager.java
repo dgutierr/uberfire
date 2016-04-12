@@ -101,7 +101,7 @@ public interface AuthorizationManager {
     boolean authorize(Permission permission, User user, VotingStrategy votingStrategy);
 
     /**
-     * Creates a brand new {@link AuthorizationCheck} instance which provides a fluent styled API for
+     * Creates a brand new {@link ResourceCheck} instance which provides a fluent styled API for
      * the checking of restricted actions over {@link Resource} instances.
      *
      * <p>ExampleUsage: </p>
@@ -123,10 +123,34 @@ public interface AuthorizationManager {
      *
      * @return A {@link AuthorizationCheck} instance.
      */
-    AuthorizationCheck check(Resource resource, User user, VotingStrategy votingStrategy);
+    ResourceCheck check(Resource resource, User user, VotingStrategy votingStrategy);
 
     /**
-     * Creates a brand new {@link AuthorizationCheck} instance which provides a
+     * Creates a brand new {@link ResourceCheck} instance which provides a fluent styled API for
+     * the checking of restricted actions over a {@link ResourceType}.
+     *
+     * <p>ExampleUsage: </p>
+     * <pre>
+     * {@code User user;
+     *   AuthorizationManager authzManager;
+     *
+     *   boolean result = authzManager.check(ActivityResourceType.PERSPECTIVE, user)
+     *      .granted(() -> System.out.println("Access granted"))
+     *      .denied(() -> System.out.println("Access denied"))
+     *      .result();
+     * }
+     * </pre>
+     *
+     * @param resourceType The resource type to check
+     * @param votingStrategy The voting strategy to use when voting is required
+     * (users with more than one role and/or group assigned).
+     *
+     * @return A {@link AuthorizationCheck} instance.
+     */
+    ResourceCheck check(ResourceType resourceType, User user, VotingStrategy votingStrategy);
+
+    /**
+     * Creates a brand new {@link PermissionCheck} instance which provides a
      * fluent styled API for checking permissions.
      *
      * <p>ExampleUsage: </p>
@@ -147,7 +171,7 @@ public interface AuthorizationManager {
      *
      * @return A {@link AuthorizationCheck} instance.
      */
-    AuthorizationCheck check(String permission, User user, VotingStrategy votingStrategy);
+    PermissionCheck check(String permission, User user, VotingStrategy votingStrategy);
 
     /**
      * It redirects to {@link #authorize(Resource, User, VotingStrategy)}
@@ -183,11 +207,17 @@ public interface AuthorizationManager {
      * It redirects to {@link #check(Resource, User, VotingStrategy)}
      * using the default voting strategy defined at {@link PermissionManager}.
      */
-    AuthorizationCheck check(Resource resource, User user);
+    ResourceCheck check(Resource resource, User user);
+
+    /**
+     * It redirects to {@link #check(ResourceType, User, VotingStrategy)}
+     * using the default voting strategy defined at {@link PermissionManager}.
+     */
+    ResourceCheck check(ResourceType type, User user);
 
     /**
      * It redirects to {@link #check(String, User, VotingStrategy)}
      * using the default voting strategy defined at {@link PermissionManager}.
      */
-    AuthorizationCheck check(String permission, User user);
+    PermissionCheck check(String permission, User user);
 }
