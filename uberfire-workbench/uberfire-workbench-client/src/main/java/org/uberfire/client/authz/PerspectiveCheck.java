@@ -36,10 +36,10 @@ public class PerspectiveCheck extends ActivityCheck<PerspectiveCheck> {
     }
 
     public PerspectiveCheck edit() {
-        return super.check(PerspectiveAction.EDIT);
+        return super.action(PerspectiveAction.EDIT);
     }
 
     public PerspectiveCheck delete() {
-        return super.check(PerspectiveAction.DELETE);
+        return super.action(PerspectiveAction.DELETE);
     }
 }

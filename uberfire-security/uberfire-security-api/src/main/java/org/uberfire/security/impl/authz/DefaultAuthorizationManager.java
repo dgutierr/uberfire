@@ -26,9 +26,10 @@ import org.uberfire.security.ResourceAction;
 import org.uberfire.security.ResourceType;
 import org.uberfire.security.authz.AuthorizationManager;
 import org.uberfire.security.authz.AuthorizationResult;
-import org.uberfire.security.authz.AuthorizationCheck;
 import org.uberfire.security.authz.Permission;
+import org.uberfire.security.authz.PermissionCheck;
 import org.uberfire.security.authz.PermissionManager;
+import org.uberfire.security.authz.ResourceCheck;
 import org.uberfire.security.authz.VotingStrategy;
 
 import static org.uberfire.commons.validation.PortablePreconditions.*;
@@ -129,22 +130,32 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
     }
 
     @Override
-    public AuthorizationCheck check(Resource target, User user) {
+    public ResourceCheck check(Resource target, User user) {
         return check(target, user, null);
     }
 
     @Override
-    public AuthorizationCheck check(Resource target, User user, VotingStrategy votingStrategy) {
-        return new ResourceCheck(this, target, user, votingStrategy);
+    public ResourceCheck check(Resource target, User user, VotingStrategy votingStrategy) {
+        return new ResourceCheckImpl(this, target, user, votingStrategy);
     }
 
     @Override
-    public AuthorizationCheck check(String permission, User user) {
+    public ResourceCheck check(ResourceType target, User user) {
+        return check(target, user, null);
+    }
+
+    @Override
+    public ResourceCheck check(ResourceType target, User user, VotingStrategy votingStrategy) {
+        return new ResourceCheckImpl(this, target, user, votingStrategy);
+    }
+
+    @Override
+    public PermissionCheck check(String permission, User user) {
         return check(permission, user, null);
     }
 
     @Override
-    public AuthorizationCheck check(String permission, User user, VotingStrategy votingStrategy) {
-        return new PermissionCheck(permissionManager, permission, user, votingStrategy);
+    public PermissionCheck check(String permission, User user, VotingStrategy votingStrategy) {
+        return new PermissionCheckImpl(permissionManager, permission, user, votingStrategy);
     }
 }

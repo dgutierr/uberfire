@@ -52,22 +52,22 @@ public class DefaultWorkbenchController implements WorkbenchController {
 
     @Override
     public ActivityCheck screens() {
-        return new PerspectiveCheck(authorizationManager, ActivityResourceType.SCREEN, user);
+        return new ActivityCheck(authorizationManager, ActivityResourceType.SCREEN, user);
     }
 
     @Override
     public ActivityCheck popupScreens() {
-        return new PerspectiveCheck(authorizationManager, ActivityResourceType.POPUP, user);
+        return new ActivityCheck(authorizationManager, ActivityResourceType.POPUP, user);
     }
 
     @Override
     public ActivityCheck splashScreens() {
-        return new PerspectiveCheck(authorizationManager, ActivityResourceType.SPLASH, user);
+        return new ActivityCheck(authorizationManager, ActivityResourceType.SPLASH, user);
     }
 
     @Override
     public ActivityCheck editors() {
-        return new PerspectiveCheck(authorizationManager, ActivityResourceType.EDITOR, user);
+        return new ActivityCheck(authorizationManager, ActivityResourceType.EDITOR, user);
     }
 
     @Override
@@ -77,21 +77,21 @@ public class DefaultWorkbenchController implements WorkbenchController {
 
     @Override
     public ActivityCheck screen(WorkbenchScreenActivity screen) {
-        return new PerspectiveCheck(authorizationManager, screen, user);
+        return new ActivityCheck(authorizationManager, screen, user);
     }
 
     @Override
     public ActivityCheck popupScreen(PopupActivity popup) {
-        return new PerspectiveCheck(authorizationManager, popup, user);
+        return new ActivityCheck(authorizationManager, popup, user);
     }
 
     @Override
     public ActivityCheck editor(WorkbenchEditorActivity editor) {
-        return new PerspectiveCheck(authorizationManager, editor, user);
+        return new ActivityCheck(authorizationManager, editor, user);
     }
 
     @Override
     public ActivityCheck splashScreen(SplashScreenActivity splash) {
-        return new PerspectiveCheck(authorizationManager, splash, user);
+        return new ActivityCheck(authorizationManager, splash, user);
     }
 }
