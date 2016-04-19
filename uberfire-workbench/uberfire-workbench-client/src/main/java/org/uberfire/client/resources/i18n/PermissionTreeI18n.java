@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.uberfire.security.client.authz;
 
-public interface PermissionAssignment extends PermissionNode {
+package org.uberfire.client.resources.i18n;
+
+public interface PermissionTreeI18n {
+
+    String perspectivesNodeName();
+
+    String perspectiveResourceName();
+
+    String perspectiveCreate();
+
+    String perspectiveRead();
+
+    String perspectiveEdit();
+
+    String perspectiveDelete();
 }

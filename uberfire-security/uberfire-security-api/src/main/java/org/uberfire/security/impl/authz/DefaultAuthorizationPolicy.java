@@ -160,34 +160,12 @@ public class DefaultAuthorizationPolicy implements AuthorizationPolicy {
     }
 
     @Override
-    public PermissionCollection getPermissions(User user) {
-        PermissionCollection result = null;
-        int lastPriority = 0;
-
-        if (user.getRoles() != null) {
-            for (Role role : user.getRoles()) {
-                PermissionCollection collection = getPermissions(role);
-                int priority = getPriority(role);
-                result = result == null ? collection : result.merge(collection, priority-lastPriority);
-                lastPriority = priority;
-            }
-        }
-        if (user.getGroups() != null) {
-            for (Group group : user.getGroups()) {
-                PermissionCollection collection = getPermissions(group);
-                int priority = getPriority(group);
-                result = result == null ? collection : result.merge(collection, priority-lastPriority);
-                lastPriority = priority;
-            }
-        }
-        return result;
-    }
-
     public void setHomePerspective(Role role, String perspective) {
         DefaultAuthorizationEntry entry = getAuthzEntry(role);
         entry.setHomePerspective(perspective);
     }
 
+    @Override
     public void setHomePerspective(Group group, String perspective) {
         DefaultAuthorizationEntry entry = getAuthzEntry(group);
         entry.setHomePerspective(perspective);

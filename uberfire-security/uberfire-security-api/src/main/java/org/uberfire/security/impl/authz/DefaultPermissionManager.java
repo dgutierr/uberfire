@@ -49,21 +49,21 @@ public class DefaultPermissionManager implements PermissionManager {
     private VotingStrategy defaultVotingStrategy = VotingStrategy.PRIORITY;
     private Map<VotingStrategy,VotingAlgorithm> votingAlgorithmMap = new HashMap<>();
 
-    public DefaultPermissionManager() {
-        setVotingAlgorithm(VotingStrategy.AFFIRMATIVE, new AffirmativeBasedVoter());
-        setVotingAlgorithm(VotingStrategy.CONSENSUS, new ConsensusBasedVoter());
-        setVotingAlgorithm(VotingStrategy.UNANIMOUS, new UnanimousBasedVoter());
-    }
-
-    public DefaultPermissionManager(PermissionTypeRegistry permissionTypeRegistry, DefaultAuthzResultCache cache) {
-        this();
-        this.permissionTypeRegistry = permissionTypeRegistry;
-        this.cache = cache;
-    }
-
     @Inject
     public DefaultPermissionManager(PermissionTypeRegistry permissionTypeRegistry) {
         this(permissionTypeRegistry, new DefaultAuthzResultCache());
+    }
+
+    public DefaultPermissionManager() {
+        this(new DefaultPermissionTypeRegistry(), new DefaultAuthzResultCache());
+    }
+
+    public DefaultPermissionManager(PermissionTypeRegistry permissionTypeRegistry, DefaultAuthzResultCache cache) {
+        this.permissionTypeRegistry = permissionTypeRegistry;
+        this.cache = cache;
+        setVotingAlgorithm(VotingStrategy.AFFIRMATIVE, new AffirmativeBasedVoter());
+        setVotingAlgorithm(VotingStrategy.CONSENSUS, new ConsensusBasedVoter());
+        setVotingAlgorithm(VotingStrategy.UNANIMOUS, new UnanimousBasedVoter());
     }
 
     public AuthorizationPolicy getAuthorizationPolicy() {
@@ -146,7 +146,7 @@ public class DefaultPermissionManager implements PermissionManager {
     protected AuthorizationResult _checkPermission(Permission permission, User user, VotingStrategy votingStrategy) {
 
         if (VotingStrategy.PRIORITY.equals(votingStrategy)) {
-            PermissionCollection userPermissions = authorizationPolicy.getPermissions(user);
+            PermissionCollection userPermissions = resolvePermissions(user, VotingStrategy.PRIORITY);
             return _checkPermission(permission, userPermissions);
         }
         else {
@@ -192,5 +192,69 @@ public class DefaultPermissionManager implements PermissionManager {
             return ACCESS_DENIED;
         }
         return ACCESS_ABSTAIN;
+    }
+
+    @Override
+    public String resolveResourceId(Permission permission) {
+        PermissionType permissionType = permissionTypeRegistry.resolve(permission.getName());
+        return permissionType.resolveResourceId(permission);
+    }
+
+    @Override
+    public PermissionCollection resolvePermissions(User user, VotingStrategy votingStrategy) {
+        if (user == null) {
+            return new DefaultPermissionCollection();
+        }
+        switch (votingStrategy) {
+            case AFFIRMATIVE:
+                return resolvePermissionsAffirmative(user);
+            case CONSENSUS:
+                return resolvePermissionsConsensus(user);
+            case UNANIMOUS:
+                return resolvePermissionsUnanimous(user);
+            default:
+                return resolvePermissionsPriority(user);
+        }
+    }
+
+    private PermissionCollection resolvePermissionsAffirmative(User user) {
+        // TODO
+        PermissionCollection result = new DefaultPermissionCollection();
+        return result;
+    }
+
+    private PermissionCollection resolvePermissionsConsensus(User user) {
+        // TODO
+        PermissionCollection result = new DefaultPermissionCollection();
+        return result;
+    }
+
+    private PermissionCollection resolvePermissionsUnanimous(User user) {
+        // TODO
+        PermissionCollection result = new DefaultPermissionCollection();
+        return result;
+    }
+
+    private PermissionCollection resolvePermissionsPriority(User user) {
+        PermissionCollection result = null;
+        int lastPriority = 0;
+
+        if (user.getRoles() != null && authorizationPolicy != null) {
+            for (Role role : user.getRoles()) {
+                PermissionCollection collection = authorizationPolicy.getPermissions(role);
+                int priority = authorizationPolicy.getPriority(role);
+                result = result == null ? collection : result.merge(collection, priority-lastPriority);
+                lastPriority = priority;
+            }
+        }
+        if (user.getGroups() != null && authorizationPolicy != null) {
+            for (Group group : user.getGroups()) {
+                PermissionCollection collection = authorizationPolicy.getPermissions(group);
+                int priority = authorizationPolicy.getPriority(group);
+                result = result == null ? collection : result.merge(collection, priority-lastPriority);
+                lastPriority = priority;
+            }
+        }
+        return result;
     }
 }

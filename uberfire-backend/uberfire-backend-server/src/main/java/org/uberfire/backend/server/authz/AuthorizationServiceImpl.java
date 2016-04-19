@@ -16,10 +16,13 @@
 package org.uberfire.backend.server.authz;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.jboss.errai.bus.server.annotations.Service;
+import org.uberfire.backend.authz.AuthorizationPolicyStorage;
 import org.uberfire.backend.authz.AuthorizationService;
+import org.uberfire.backend.events.AuthorizationPolicySavedEvent;
 import org.uberfire.security.authz.AuthorizationPolicy;
 
 @Service
@@ -27,7 +30,10 @@ import org.uberfire.security.authz.AuthorizationPolicy;
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Inject
-    private DefaultAuthzPolicyStorage storage;
+    private AuthorizationPolicyStorage storage;
+
+    @Inject
+    private Event<AuthorizationPolicySavedEvent> savedEvent;
 
     @Override
     public AuthorizationPolicy loadPolicy() {
@@ -37,5 +43,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public void savePolicy(AuthorizationPolicy policy) {
         storage.savePolicy(policy);
+
+        savedEvent.fire(new AuthorizationPolicySavedEvent(policy));
     }
 }

@@ -96,7 +96,8 @@ public class DotNamedPermission implements Permission, Comparable<Permission> {
         return impliesName(other) && impliesResult(other);
     }
 
-    protected boolean impliesName(Permission other) {
+    @Override
+    public boolean impliesName(Permission other) {
         if (equalsName(other)) {
             return true;
         }
@@ -111,7 +112,8 @@ public class DotNamedPermission implements Permission, Comparable<Permission> {
         return other.getName().substring(0, lastDot).equals(name);
     }
 
-    protected boolean impliesResult(Permission other) {
+    @Override
+    public boolean impliesResult(Permission other) {
         if (result == null || ACCESS_ABSTAIN.equals(result)) {
             return other.getResult() == null || ACCESS_ABSTAIN.equals(other.getResult());
         }

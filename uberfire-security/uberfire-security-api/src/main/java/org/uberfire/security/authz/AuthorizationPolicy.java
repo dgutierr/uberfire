@@ -119,24 +119,6 @@ public interface AuthorizationPolicy {
     PermissionCollection getPermissions(Group group);
 
     /**
-     * Get the permissions assigned to a given user.
-     *
-     * <p>Usually, the user's permissions is obtained by mixing all the permissions assigned
-     * to each role and group instance the user belongs to.</p>
-     *
-     * <p>Every interface implementation must take into account the priority of every individual
-     * role/group, which means that the most priority role/group have precedence in the permission
-     * resolution algorithm.</p>
-     *
-     * @param user The user instance
-     * @return The permission collection
-     *
-     * @see AuthorizationPolicy#getPriority(Role)
-     * @see AuthorizationPolicy#getPriority(Group)
-     */
-    PermissionCollection getPermissions(User user);
-
-    /**
      * Get the identifier of the home perspective assigned to the given group.
      *
      * @return An existing perspective identifier
@@ -149,6 +131,22 @@ public interface AuthorizationPolicy {
      * @return An existing perspective identifier
      */
     String getHomePerspective(Group group);
+
+    /**
+     * Set the identifier of the home perspective assigned to the given role.
+     *
+     * @param role The target role instance
+     * @param perspectiveId An existing perspective identifier
+     */
+    void setHomePerspective(Role role, String perspectiveId);
+
+    /**
+     * Set the identifier of the home perspective assigned to the given group.
+     *
+     * @param group The target group instance
+     * @param perspectiveId An existing perspective identifier
+     */
+    void setHomePerspective(Group group, String perspectiveId);
 
     /**
      * Get the identifier of the perspective this user is redirected by default.

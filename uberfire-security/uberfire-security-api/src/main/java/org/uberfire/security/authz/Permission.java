@@ -49,10 +49,28 @@ public interface Permission {
      * Thus, this is not an equality test, but rather more of a
      * subset test.
      *
+     * <p>Both calls to {@link #impliesName(Permission)} & {@link #impliesResult(Permission)} return true.</p>
+     *
      * @param other the permission to check against.
      * @return true if the specified permission is implied by this object, false if not.
      */
     boolean implies(Permission other);
+
+    /**
+     * If "permission p1 impliesName permission p2" means that the feature represented by p1 is a superset of p2.
+     *
+     * @param other the permission to check against.
+     * @return true if the specified permission name is implied by this object, false if not.
+     */
+    boolean impliesName(Permission other);
+
+    /**
+     * If "permission p1 impliesResult permission p2" means that both permissions give the same result.
+     *
+     * @param other the permission to check against.
+     * @return true if the specified permission result is implied by this object, false if not.
+     */
+    boolean impliesResult(Permission other);
 
     /**
      * Creates an exact copy of this instance.

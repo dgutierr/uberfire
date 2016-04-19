@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.uberfire.security.client.authz;
+package org.uberfire.security.client.authz.tree;
 
-import java.util.Collection;
+/**
+ * {@link PermissionTree} visitor interface
+ */
+public interface PermissionTreeVisitor {
 
-public interface PermissionNode {
-
-    PermissionNode getParent();
-
-    Collection<PermissionNode> getChildren();
-
-    void accept(PermissionTreeVisitor visitor);
+    /**
+     * Visit the given {@link PermissionNode}.
+     *
+     * @param node The node to visit
+     */
+    void visit(PermissionNode node);
 }

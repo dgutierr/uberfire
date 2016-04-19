@@ -67,7 +67,7 @@ public class PermissionManagerTest {
     @Before
     public void setUp() {
         authzResultCache = spy(new DefaultAuthzResultCache());
-        permissionManager = new DefaultPermissionManager(new DefaultPermissionTypeRegistry(), authzResultCache);
+        permissionManager = spy(new DefaultPermissionManager(new DefaultPermissionTypeRegistry(), authzResultCache));
         permissionManager.setAuthorizationPolicy(
                 authorizationPolicy = spy(permissionManager.newAuthorizationPolicy()
                 .role("viewAll").permission("resource.read", true)
@@ -77,7 +77,6 @@ public class PermissionManagerTest {
                 .role("onlyView12").permission("resource.read.1.2", true)
                 .build()));
     }
-
 
     @Test
     public void testCreateGlobalPermissions() {
@@ -118,6 +117,26 @@ public class PermissionManagerTest {
 
         p = permissionManager.createPermission(r, ResourceAction.READ, true);
         assertEquals(p.getName(), "r1");
+    }
+
+    @Test
+    public void testResolveResourceId() {
+        ResourceType type = () -> "type";
+        ResourceRef r = new ResourceRef("r1", type, null);
+        Permission p = permissionManager.createPermission(r, null, true);
+        assertEquals(p.getName(), "type.read.r1");
+
+        String id = permissionManager.resolveResourceId(p);
+        assertEquals(id, "r1");
+    }
+
+    @Test
+    public void testResolveResourceNull() {
+        Permission p = permissionManager.createPermission("feature", true);
+        assertEquals(p.getName(), "feature");
+
+        String id = permissionManager.resolveResourceId(p);
+        assertNull(id);
     }
 
     @Test
@@ -200,7 +219,7 @@ public class PermissionManagerTest {
         permissionManager.checkPermission(viewAll, user);
         permissionManager.checkPermission(viewAll, user);
         permissionManager.checkPermission(viewAll, user);
-        verify(authorizationPolicy, times(1)).getPermissions(user);
+        verify(permissionManager, times(1)).resolvePermissions(user, VotingStrategy.PRIORITY);
         verify(authzResultCache, times(1)).put(user, viewAll, AuthorizationResult.ACCESS_GRANTED);
         verify(authzResultCache, times(4)).get(user, viewAll);
         assertEquals(authzResultCache.size(user), 1);
@@ -252,7 +271,7 @@ public class PermissionManagerTest {
         permissionManager.setAuthorizationPolicy(policy);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_GRANTED);
 
-        PermissionCollection pc = policy.getPermissions(user);
+        PermissionCollection pc = permissionManager.resolvePermissions(user, VotingStrategy.PRIORITY);
         Collection<Permission> permissions = pc.collection();
         assertEquals(permissions.size(), 2);
         assertTrue(permissions.contains(denyAll));
@@ -271,7 +290,7 @@ public class PermissionManagerTest {
         permissionManager.setAuthorizationPolicy(policy);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_GRANTED);
 
-        PermissionCollection pc = policy.getPermissions(user);
+        PermissionCollection pc = permissionManager.resolvePermissions(user, VotingStrategy.PRIORITY);
         Collection<Permission> permissions = pc.collection();
         assertEquals(permissions.size(), 1);
         assertTrue(permissions.contains(viewAll));
@@ -289,7 +308,7 @@ public class PermissionManagerTest {
         permissionManager.setAuthorizationPolicy(policy);
         assertEquals(permissionManager.checkPermission(view1, user), ACCESS_GRANTED);
 
-        PermissionCollection pc = policy.getPermissions(user);
+        PermissionCollection pc = permissionManager.resolvePermissions(user, VotingStrategy.PRIORITY);
         Collection<Permission> permissions = pc.collection();
         assertEquals(permissions.size(), 2);
         assertTrue(permissions.contains(denyAll));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2016 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.uberfire.backend.events;
 
-package org.uberfire.client.authz;
+import org.uberfire.security.authz.AuthorizationPolicy;
 
-/**
- * Perspective related actions
- */
-public interface PerspectiveAction extends ActivityAction {
+public class AuthorizationPolicySavedEvent {
 
-    PerspectiveAction CREATE = () -> "create";
-    PerspectiveAction EDIT = () -> "edit";
-    PerspectiveAction DELETE = () -> "delete";
+    private AuthorizationPolicy policy;
+
+    public AuthorizationPolicySavedEvent() {
+    }
+
+    public AuthorizationPolicySavedEvent(AuthorizationPolicy policy) {
+        this.policy = policy;
+    }
+
+    public AuthorizationPolicy getPolicy() {
+        return policy;
+    }
 }

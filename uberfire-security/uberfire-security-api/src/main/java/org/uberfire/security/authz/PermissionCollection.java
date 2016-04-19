@@ -41,6 +41,13 @@ public interface PermissionCollection {
     PermissionCollection add(Permission... permissions);
 
     /**
+     * Removes a permission object from the current collection of permission objects.
+     *
+     * @param permissions the Permission objects to remove.
+     */
+    PermissionCollection remove(Permission... permissions);
+
+    /**
      * Gets a permission object matching the specified name.
      *
      * @param name The fully qualified name of the permission.
