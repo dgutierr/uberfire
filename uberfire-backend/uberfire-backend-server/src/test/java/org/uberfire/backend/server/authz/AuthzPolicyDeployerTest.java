@@ -18,7 +18,6 @@ package org.uberfire.backend.server.authz;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Set;
 
 import org.jboss.errai.security.shared.api.Role;
@@ -36,58 +35,15 @@ import org.uberfire.security.impl.authz.DefaultPermissionTypeRegistry;
 
 import static org.junit.Assert.*;
 
-public class AuthzPolicyStorageTest {
+public class AuthzPolicyDeployerTest {
 
-    DefaultAuthzPolicyStorage authzPolicyStorage;
+    AuthorizationPolicyDeployer deployer;
 
     @Before
     public void setUp() {
         PermissionTypeRegistry permissionTypeRegistry = new DefaultPermissionTypeRegistry();
         PermissionManager permissionManager = new DefaultPermissionManager(permissionTypeRegistry);
-        authzPolicyStorage = new DefaultAuthzPolicyStorage(permissionManager);
-    }
-
-    @Test
-    public void testHomeEntry() {
-        List<String> tokens = authzPolicyStorage.parseKey("role.admin.home");
-        assertEquals(tokens.size(), 3);
-        assertEquals(tokens.get(0), "role");
-        assertEquals(tokens.get(1), "admin");
-        assertEquals(tokens.get(2), "home");
-    }
-
-    @Test
-    public void testPriorityEntry() {
-        List<String> tokens = authzPolicyStorage.parseKey("role.admin.priority");
-        assertEquals(tokens.size(), 3);
-        assertEquals(tokens.get(0), "role");
-        assertEquals(tokens.get(1), "admin");
-        assertEquals(tokens.get(2), "priority");
-    }
-
-    @Test
-    public void testPermissionEntry() {
-        List<String> tokens = authzPolicyStorage.parseKey("role.admin.permission.perspective.read");
-        assertEquals(tokens.size(), 4);
-        assertEquals(tokens.get(0), "role");
-        assertEquals(tokens.get(1), "admin");
-        assertEquals(tokens.get(2), "permission");
-        assertEquals(tokens.get(3), "perspective.read");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidEntry1() {
-        authzPolicyStorage.parseKey("role..priority");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidEntry2() {
-        authzPolicyStorage.parseKey(".admin.priority");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidEntry3() {
-        authzPolicyStorage.parseKey("role");
+        deployer = new AuthorizationPolicyDeployer(null, permissionManager);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -109,7 +65,7 @@ public class AuthzPolicyStorageTest {
         URL fileURL = Thread.currentThread().getContextClassLoader().getResource(path);
         Path policyDir = Paths.get(fileURL.toURI()).getParent();
 
-        AuthorizationPolicy policy = authzPolicyStorage.loadPolicy(policyDir);
+        AuthorizationPolicy policy = deployer.loadPolicy(policyDir);
 
         Set<Role> roles = policy.getRoles();
         assertEquals(roles.size(), 3);

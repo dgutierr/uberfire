@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.uberfire.security.client.authz;
+package org.uberfire.security.client.authz.tree;
 
-public interface PermissionTree {
+/**
+ * Interface implemented for those {@link PermissionNode} instances that handle resources.
+ */
+public interface HasResources {
 
-    PermissionNode getRootNode();
+    /**
+     * Retrieves the name of the resource (if any) this node is handling.
+     *
+     * @return The name to display in the UI. If null then a generic resource name will be used such as "Item" or "Instance".
+     */
+    default String getResourceName() {
+        return null;
+    }
 }

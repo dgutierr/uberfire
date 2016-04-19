@@ -15,31 +15,24 @@
  */
 package org.uberfire.backend.server.authz;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.uberfire.backend.authz.AuthorizationPolicyStorage;
+import org.jboss.errai.security.shared.api.Group;
+import org.jboss.errai.security.shared.api.Role;
 import org.uberfire.security.authz.AuthorizationPolicy;
-import org.uberfire.security.authz.PermissionManager;
+import org.uberfire.security.authz.AuthorizationResult;
+import org.uberfire.security.authz.Permission;
+import org.uberfire.security.authz.PermissionCollection;
 import org.uberfire.security.impl.authz.AuthorizationPolicyBuilder;
 
 /**
- * An implementation that stores the authorization policy in property files.
+ * Class used to convert an {@link AuthorizationPolicy} instance into/from a set of key/value pairs.
  *
- * <p>The format of the entries are:</p>
+ * <p>The format of the key/value pairs is:</p><a name="entriesFormat"></a>
  *
  * <pre>"classifier.identifier.setting.extra=value"</pre>
  *
@@ -73,20 +66,8 @@ import org.uberfire.security.impl.authz.AuthorizationPolicyBuilder;
  * role.user.permission.perspective.read.Home=true
  * role.user.permission.perspective.read.Dashboard=true
  * </pre>
- *
- * <p>Notice also, the entries can be split into multiple property files. The "{@code security-policy.properties}"
- * file is always mandatory and it serves as a marker file. Alongside that file, several
- * "{@code security-module-?.properties}" files can be created. The storage implementation will read all of them.</p>
- *
- * <p>The split mechanism allows either for the creation of just a single full standalone policy file or multiple
- * module files each of them containing different entries. The way those files are defined is always up to the
- * application developer.</p>
- *</p>
  */
-@ApplicationScoped
-public class DefaultAuthzPolicyStorage implements AuthorizationPolicyStorage {
-
-    private Logger logger = LoggerFactory.getLogger(DefaultAuthzPolicyStorage.class);
+public class AuthorizationPolicyMarshaller {
 
     private static final String ROLE = "role";
     private static final String GROUP = "group";
@@ -95,65 +76,33 @@ public class DefaultAuthzPolicyStorage implements AuthorizationPolicyStorage {
     private static final String HOME = "home";
     private static final String DESCRIPTION = "description";
 
-    private PermissionManager permissionManager;
-
-    public DefaultAuthzPolicyStorage() {
-    }
-
-    @Inject
-    public DefaultAuthzPolicyStorage(PermissionManager permissionManager) {
-        this.permissionManager = permissionManager;
-    }
-
-    @Override
-    public AuthorizationPolicy loadPolicy() {
-        URL fileURL = Thread.currentThread().getContextClassLoader().getResource("security-policy.properties");
-        if (fileURL != null) {
-            Path path = Paths.get(URI.create("file://" + fileURL.getPath())).getParent();
-            AuthorizationPolicy policy = loadPolicy(path);
-            logger.info("Security policy loaded: " + fileURL.getPath());
-            return policy;
-        } else {
-            logger.info("Security policy not detected.");
-            return null;
+    /**
+     * It reads all the entries from the collection of property files passed as a parameter. For every entry
+     * a call to the proper {@link AuthorizationPolicyBuilder} method is executed.
+     *
+     * <p>The valid format for the entries is specified in the <a href="#entriesFormat">class description</a>.</p>
+     *
+     * @param builder The {@link AuthorizationPolicyBuilder} used to register every processed entry.
+     * @param input The property objects containing the authz policy entries
+     */
+    public void read(AuthorizationPolicyBuilder builder, Map... input) {
+        for (Map m : input) {
+            m.forEach((x,y) -> read(builder, x.toString(), y.toString()));
         }
     }
 
-    public AuthorizationPolicy loadPolicy(Path policyDir) {
-        if (policyDir == null) {
-            return null;
-        }
-        AuthorizationPolicyBuilder builder = permissionManager.newAuthorizationPolicy();
-
-        try {
-            Files.list(policyDir)
-                    .filter(this::isPolicyFile)
-                    .forEach(p -> loadPolicyFile(builder, p));
-        }
-        catch (IOException e) {
-            logger.warn("Error loading security policy files", e);
-        }
-        return builder.build();
-    }
-
-    public boolean isPolicyFile(Path p) {
-        String fileName = p.getName(p.getNameCount()-1).toString();
-        return fileName.equals("security-policy.properties") || fileName.startsWith("security-module-");
-    }
-
-    public void loadPolicyFile(AuthorizationPolicyBuilder builder, Path path) {
-        try (BufferedReader reader = Files.newBufferedReader(path)) {
-            Properties p = new Properties();
-            p.load(reader);
-            p.forEach((x,y) -> processEntry(builder, x.toString(), y.toString()));
-        }
-        catch (IOException e) {
-            logger.error("Authorization Policy load error", e);
-        }
-    }
-
-    public void processEntry(AuthorizationPolicyBuilder builder, String key, String value) {
-        List<String> tokens = parseKey(key);
+    /**
+     * It reads key/value pair passed as a parameter and it calls to the right
+     * {@link AuthorizationPolicyBuilder} method .
+     *
+     * <p>The valid format for an key/value pair is specified in the <a href="#entriesFormat">class description</a>.</p>
+     *
+     * @param builder The {@link AuthorizationPolicyBuilder} used to register the entry.
+     * @param key The key to read
+     * @param value The value to read
+     */
+    public void read(AuthorizationPolicyBuilder builder, String key, String value) {
+        List<String> tokens = split(key);
 
         // Role or group setting
         String type = tokens.get(0);
@@ -201,7 +150,71 @@ public class DefaultAuthzPolicyStorage implements AuthorizationPolicyStorage {
         }
     }
 
-    public List<String> parseKey(String key) {
+    /**
+     * Dumps the {@link AuthorizationPolicy} instance passed as a parameter into the output {@link Properties} object
+     * specified.
+     *
+     * <p>The format for an key/value pair is specified in the <a href="#entriesFormat">class description</a>.</p>
+     *
+     * @param policy The {@link AuthorizationPolicy} to serialize
+     * @param out The {@link Properties} instance used as output
+     */
+    public void write(AuthorizationPolicy policy, Map out) {
+        for (Role subject : policy.getRoles()) {
+            write(subject, policy.getHomePerspective(subject), out);
+            write(subject, policy.getPriority(subject), out);
+            write(subject, policy.getPermissions(subject), out);
+        }
+        for (Group subject : policy.getGroups()) {
+            write(subject, policy.getHomePerspective(subject), out);
+            write(subject, policy.getPriority(subject), out);
+            write(subject, policy.getPermissions(subject), out);
+        }
+    }
+
+    public void write(Role role, String homePerspectiveId, Map out) {
+        String key = ROLE + "." + role.getName()  + "." + HOME;
+        out.remove(key);
+        if (homePerspectiveId != null) {
+            out.put(key, homePerspectiveId);
+        }
+    }
+
+    public void write(Role role, int priority, Map out) {
+        String key = ROLE + "." + role.getName() + "." + PRIORITY;
+        out.put(key, Integer.toString(priority));
+    }
+
+    public void write(Role role, PermissionCollection permissions, Map out) {
+        for (Permission p : permissions.collection()) {
+            boolean granted = p.getResult() != null && p.getResult().equals(AuthorizationResult.ACCESS_GRANTED);
+            String key = ROLE + "." + role.getName() + "." + PERMISSION + "." + p.getName();
+            out.put(key, Boolean.toString(granted));
+        }
+    }
+
+    public void write(Group group, String homePerspectiveId, Map out) {
+        String key = GROUP + "." + group.getName() + "." + HOME;
+        out.remove(key);
+        if (homePerspectiveId != null) {
+            out.put(key, homePerspectiveId);
+        }
+    }
+
+    public void write(Group group, int priority, Map out) {
+        String key = GROUP + "." + group.getName() + "." + PRIORITY;
+        out.put(key, Integer.toString(priority));
+    }
+
+    public void write(Group group, PermissionCollection permissions, Map out) {
+        for (Permission p : permissions.collection()) {
+            boolean granted = p.getResult() != null && p.getResult().equals(AuthorizationResult.ACCESS_GRANTED);
+            String key = GROUP + "." + group.getName() + "." + PERMISSION + "." + p.getName();
+            out.put(key, Boolean.toString(granted));
+        }
+    }
+
+    public List<String> split(String key) {
         String _key = key.endsWith(".*") ? key.substring(0, key.length()-2) : key;
         List<String> result = new ArrayList<>();
         String[] tokens = _key.split("\\.");
@@ -219,10 +232,5 @@ public class DefaultAuthzPolicyStorage implements AuthorizationPolicyStorage {
             throw new IllegalArgumentException("Incomplete key: " + key);
         }
         return result;
-    }
-
-    @Override
-    public void savePolicy(AuthorizationPolicy policy) {
-
     }
 }

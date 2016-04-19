@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.uberfire.security.client.authz;
+package org.uberfire.security.client.authz.tree;
 
-public interface PermissionTreeBuilder {
+import java.util.List;
 
-    PermissionTree build();
+/**
+ * Callback interface for the processing of the {@link PermissionNode} instances retrieved after expanding
+ * its parent node (see {@link PermissionNode#expand(LoadCallback)}).
+ */
+public interface LoadCallback {
+
+    /**
+     * Called after a list of nodes have been loaded
+     *
+     * @param nodeList The results
+     */
+    void afterLoad(List<PermissionNode> nodeList);
 }

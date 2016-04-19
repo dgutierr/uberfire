@@ -54,6 +54,14 @@ public class DefaultPermissionCollection implements PermissionCollection {
     }
 
     @Override
+    public PermissionCollection remove(Permission... permissions) {
+        for (Permission p : permissions) {
+            permissionSet.remove(p);
+        }
+        return this;
+    }
+
+    @Override
     public Permission get(String name) {
         for (Permission p : permissionSet) {
             if (equalsName(name, p.getName())) {

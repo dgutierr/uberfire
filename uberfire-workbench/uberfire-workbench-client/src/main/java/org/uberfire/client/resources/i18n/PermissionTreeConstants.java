@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.uberfire.security.client.authz;
 
-public interface PermissionTreeVisitor {
+package org.uberfire.client.resources.i18n;
 
-    void visit(PermissionAssignment node);
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.Messages;
 
-    void visit(PermissionCategory node);
+public interface PermissionTreeConstants extends Messages, PermissionTreeI18n {
+
+    PermissionTreeConstants INSTANCE = GWT.create(PermissionTreeConstants.class);
+
 }

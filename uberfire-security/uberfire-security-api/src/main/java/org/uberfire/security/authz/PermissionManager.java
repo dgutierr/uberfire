@@ -15,6 +15,8 @@
  */
 package org.uberfire.security.authz;
 
+import org.jboss.errai.security.shared.api.Group;
+import org.jboss.errai.security.shared.api.Role;
 import org.jboss.errai.security.shared.api.identity.User;
 import org.uberfire.security.Resource;
 import org.uberfire.security.ResourceAction;
@@ -149,4 +151,34 @@ public interface PermissionManager {
      * @return The authorization result: GRANTED / DENIED / ABSTAIN
      */
     AuthorizationResult checkPermission(Permission permission, User user, VotingStrategy votingStrategy);
+
+    /**
+     * Given a permission it tries to determine what is the resource the permission refers to.
+     *
+     * <p>The resolution mechanism works only if the permission instance was created by a previous call
+     * to {@link #createPermission(Resource, ResourceAction, boolean)}. In such case the identifier of the
+     * {@link Resource} instance is the value returned.</p>
+     *
+     * @param permission The permission which resource id. has to be inferred.
+     * @return A resource id. or null if it can bot be inferred.
+     */
+    String resolveResourceId(Permission permission);
+
+    /**
+     * Get the permissions assigned to a given user.
+     *
+     * <p>Usually, the user's permissions is obtained by mixing all the permissions assigned
+     * to each role and group instance the user belongs to.</p>
+     *
+     * <p>Every interface implementation must take into account the voting strategy specified,
+     * which is used to resolve permission collision.</p>
+     *
+     * @param user The user instance
+     * @param votingStrategy The voting strategy
+     * @return The permission collection
+     *
+     * @see AuthorizationPolicy#getPriority(Role)
+     * @see AuthorizationPolicy#getPriority(Group)
+     */
+    PermissionCollection resolvePermissions(User user, VotingStrategy votingStrategy);
 }

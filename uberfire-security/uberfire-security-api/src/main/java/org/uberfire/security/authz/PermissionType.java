@@ -70,4 +70,16 @@ public interface PermissionType {
      * @return A permission instance
      */
     Permission createPermission(Resource resource, ResourceAction action, boolean granted);
+
+    /**
+     * Given a permission it tries to determine what is the resource the permission refers to.
+     *
+     * <p>The resolution mechanism works only if the permission instance was created by a previous call
+     * to {@link #createPermission(Resource, ResourceAction, boolean)}. In such case the identifier of the
+     * {@link Resource} instance is the value returned.</p>
+     *
+     * @param permission The permission which resource id. has to be inferred.
+     * @return A resource id. or null if it can bot be inferred.
+     */
+    String resolveResourceId(Permission permission);
 }

@@ -63,6 +63,19 @@ public class DotNamedPermissionType implements PermissionType {
         return createPermission(name, granted);
     }
 
+    @Override
+    public String resolveResourceId(Permission permission) {
+        String name = permission != null ? permission.getName() : null;
+        if (name != null) {
+            String[] s = name.split("\\.");
+            if (s.length > 2) {
+                String prefix = s[0] + "." + s[1] + ".";
+                return name.substring(prefix.length());
+            }
+        }
+        return null;
+    }
+
     protected String buildPermissionName(ResourceType type, String action, String resourceId) {
         String name = "";
         if (type != null && !type.equals(ResourceType.UNKNOWN)) {

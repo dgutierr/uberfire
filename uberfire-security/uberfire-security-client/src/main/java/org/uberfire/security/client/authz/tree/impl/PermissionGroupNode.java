@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.uberfire.security.client.authz;
+package org.uberfire.security.client.authz.tree.impl;
 
-public interface PermissionCategory extends PermissionNode {
+import org.uberfire.security.client.authz.tree.PermissionTreeProvider;
+
+/**
+ * An group node contains a non-modifiable set of children nodes
+ */
+public class PermissionGroupNode extends AbstractPermissionNode {
+
+    public PermissionGroupNode() {
+        super();
+    }
+
+    public PermissionGroupNode(PermissionTreeProvider provider) {
+        this();
+        super.setPermissionTreeProvider(provider);
+    }
 }

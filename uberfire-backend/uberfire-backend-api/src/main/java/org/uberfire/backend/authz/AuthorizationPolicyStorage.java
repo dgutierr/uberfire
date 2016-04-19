@@ -27,7 +27,7 @@ public interface AuthorizationPolicyStorage {
     /**
      * Retrieves the current {@link AuthorizationPolicy} instance from the backend storage.
      *
-     * @return The stored {@link AuthorizationPolicy} instance
+     * @return The stored {@link AuthorizationPolicy} instance or null if no policy exists.
      */
     AuthorizationPolicy loadPolicy();
 
