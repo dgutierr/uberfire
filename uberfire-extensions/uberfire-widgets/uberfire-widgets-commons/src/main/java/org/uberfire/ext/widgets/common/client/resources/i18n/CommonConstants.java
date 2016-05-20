@@ -147,4 +147,9 @@ public interface CommonConstants
 
     String Minute();
 
+    String PerspectiveSelectHint();
+
+    String PerspectiveSearchHint();
+
+    String PerspectiveNotFound();
 }

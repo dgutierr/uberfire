@@ -18,18 +18,23 @@ package org.uberfire.ext.security.management.client.screens.editor;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.IsWidget;
+import org.jboss.errai.security.shared.api.Group;
 import org.uberfire.client.annotations.WorkbenchContextId;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
 import org.uberfire.client.mvp.PlaceManager;
+import org.uberfire.client.workbench.events.ChangeTitleWidgetEvent;
 import org.uberfire.client.workbench.widgets.common.ErrorPopupPresenter;
 import org.uberfire.ext.security.management.client.ClientUserSystemManager;
 import org.uberfire.ext.security.management.client.resources.i18n.UsersManagementWorkbenchConstants;
 import org.uberfire.ext.security.management.client.screens.BaseScreen;
 import org.uberfire.ext.security.management.client.widgets.management.editor.group.workflow.GroupCreationWorkflow;
-import org.uberfire.ext.security.management.client.widgets.management.editor.group.workflow.GroupViewerWorkflow;
+import org.uberfire.ext.security.management.client.widgets.management.editor.group.workflow.GroupEditorWorkflow;
+import org.uberfire.ext.security.management.client.widgets.management.events.ContextualEvent;
 import org.uberfire.ext.security.management.client.widgets.management.events.DeleteGroupEvent;
+import org.uberfire.ext.security.management.client.widgets.management.events.OnEditEvent;
+import org.uberfire.ext.security.management.client.widgets.management.events.OnShowEvent;
 import org.uberfire.lifecycle.OnClose;
 import org.uberfire.lifecycle.OnOpen;
 import org.uberfire.lifecycle.OnStartup;
@@ -37,6 +42,7 @@ import org.uberfire.mvp.PlaceRequest;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
@@ -50,7 +56,10 @@ public class GroupEditorScreen {
 
     @Inject
     PlaceManager placeManager;
-    
+
+    @Inject
+    Event<ChangeTitleWidgetEvent> changeTitleNotification;
+
     @Inject
     ErrorPopupPresenter errorPopupPresenter;
 
@@ -58,7 +67,7 @@ public class GroupEditorScreen {
     BaseScreen baseScreen;
     
     @Inject
-    GroupViewerWorkflow groupViewerWorkflow;
+    GroupEditorWorkflow groupEditorWorkflow;
 
     @Inject
     GroupCreationWorkflow groupCreationWorkflow;
@@ -93,7 +102,7 @@ public class GroupEditorScreen {
 
     @OnClose
     public void onClose() {
-        groupViewerWorkflow.clear();
+        groupEditorWorkflow.clear();
         groupCreationWorkflow.clear();
         this.groupName = null;
     }
@@ -104,10 +113,11 @@ public class GroupEditorScreen {
 
     void show(final String name) {
         this.groupName = name;
-        title = new SafeHtmlBuilder().appendEscaped(UsersManagementWorkbenchConstants.INSTANCE.showGroup())
-                .appendEscaped(" ").appendEscaped(name).toSafeHtml().asString();
-        baseScreen.init(groupViewerWorkflow);
-        groupViewerWorkflow.show(name);
+        title = new SafeHtmlBuilder()
+                .appendEscaped(UsersManagementWorkbenchConstants.INSTANCE.showGroup(name))
+                .toSafeHtml().asString();
+        baseScreen.init(groupEditorWorkflow);
+        groupEditorWorkflow.show(name);
     }
 
     void create() {
@@ -132,6 +142,28 @@ public class GroupEditorScreen {
         return "groupEditorContext";
     }
 
+    void onEditGroupEvent(@Observes final OnEditEvent onEditEvent) {
+        if (checkEventContext(onEditEvent, groupEditorWorkflow.getGroupEditor())) {
+            Group group = (Group) onEditEvent.getInstance();
+            this.groupName = group.getName();
+            changeTitleNotification.fire(new ChangeTitleWidgetEvent(placeRequest,
+                    new SafeHtmlBuilder()
+                            .appendEscaped(UsersManagementWorkbenchConstants.INSTANCE.editGroup(groupName))
+                            .toSafeHtml().asString()));
+        }
+    }
+
+    void onShowRoleEvent(@Observes final OnShowEvent onShowEvent) {
+        if (checkEventContext(onShowEvent, groupEditorWorkflow.getGroupEditor())) {
+            Group group = (Group) onShowEvent.getInstance();
+            this.groupName = group.getName();
+            final String title = new SafeHtmlBuilder()
+                    .appendEscaped(UsersManagementWorkbenchConstants.INSTANCE.showGroup(groupName))
+                    .toSafeHtml().asString();
+            changeTitleNotification.fire(new ChangeTitleWidgetEvent(placeRequest, title));
+        }
+    }
+
     void onGroupDeleted(@Observes final DeleteGroupEvent deleteGroupEvent) {
         final String deletedGroup = deleteGroupEvent.getName();
         if (groupName != null && groupName.equals(deletedGroup)) {
@@ -141,5 +173,9 @@ public class GroupEditorScreen {
 
     private void closeEditor() {
         placeManager.closePlace(placeRequest);
+    }
+
+    private boolean checkEventContext(final ContextualEvent contextualEvent, final Object context) {
+        return contextualEvent != null && contextualEvent.getContext() != null && contextualEvent.getContext().equals(context);
     }
 }
