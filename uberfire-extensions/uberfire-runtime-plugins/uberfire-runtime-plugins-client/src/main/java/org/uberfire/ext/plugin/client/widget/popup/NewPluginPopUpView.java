@@ -32,6 +32,8 @@ public interface NewPluginPopUpView extends UberView<NewPluginPopUpView.Presente
         RuleValidator getNameValidator();
     }
 
+    void show( final PluginType type, String title );
+
     void show( final PluginType type );
 
     void hide();

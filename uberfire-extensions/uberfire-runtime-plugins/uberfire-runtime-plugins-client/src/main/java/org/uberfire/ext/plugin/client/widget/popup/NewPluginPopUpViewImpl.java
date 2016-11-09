@@ -87,33 +87,37 @@ public class NewPluginPopUpViewImpl extends BaseModal implements NewPluginPopUpV
         add( footer );
     }
 
-    public void show( final PluginType type ) {
+    @Override
+    public void show(final PluginType type ) {
+        switch ( this.type ) {
+            case PERSPECTIVE:
+                show( type, CommonConstants.INSTANCE.NewPerspectivePopUpTitle() );
+                break;
+            case PERSPECTIVE_LAYOUT:
+                show( type, CommonConstants.INSTANCE.NewPerspectiveLayoutPopUpTitle() );
+                break;
+            case SCREEN:
+                show( type, CommonConstants.INSTANCE.NewScreenPopUpTitle() );
+                break;
+            case EDITOR:
+                show( type, CommonConstants.INSTANCE.NewEditorPopUpTitle() );
+                break;
+            case SPLASH:
+                show( type, CommonConstants.INSTANCE.NewSplashScreenPopUpTitle() );
+                break;
+            case DYNAMIC_MENU:
+                show( type, CommonConstants.INSTANCE.NewDynamicMenuPopUpTitle() );
+                break;
+        }
+    }
+
+    public void show(final PluginType type, final String title ) {
         this.type = checkNotNull( "type", type );
 
         name.setText( "" );
         nameHelpInline.setText( "" );
         nameGroup.setValidationState( ValidationState.NONE );
-
-        switch ( this.type ) {
-            case PERSPECTIVE:
-                setTitle( CommonConstants.INSTANCE.NewPerspectivePopUpTitle() );
-                break;
-            case PERSPECTIVE_LAYOUT:
-                setTitle( CommonConstants.INSTANCE.NewPerspectiveLayoutPopUpTitle() );
-                break;
-            case SCREEN:
-                setTitle( CommonConstants.INSTANCE.NewScreenPopUpTitle() );
-                break;
-            case EDITOR:
-                setTitle( CommonConstants.INSTANCE.NewEditorPopUpTitle() );
-                break;
-            case SPLASH:
-                setTitle( CommonConstants.INSTANCE.NewSplashScreenPopUpTitle() );
-                break;
-            case DYNAMIC_MENU:
-                setTitle( CommonConstants.INSTANCE.NewDynamicMenuPopUpTitle() );
-                break;
-        }
+        setTitle( title );
         super.show();
     }
 

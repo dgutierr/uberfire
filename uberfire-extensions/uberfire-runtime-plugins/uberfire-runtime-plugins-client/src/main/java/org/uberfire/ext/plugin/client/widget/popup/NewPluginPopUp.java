@@ -117,6 +117,10 @@ public class NewPluginPopUp implements NewPluginPopUpView.Presenter {
         hide();
     }
 
+    public void show( final PluginType type, String title ) {
+        view.show( type, title );
+    }
+
     public void show( final PluginType type ) {
         view.show( type );
     }
